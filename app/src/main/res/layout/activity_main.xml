@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toTopOf="@+id/nav"
+        android:id="@+id/containerLayout">
+    </FrameLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/fabMargin"
+        android:layout_marginEnd="@dimen/fabMargin"
+        app:layout_constraintBottom_toTopOf="@id/nav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:backgroundTint="@color/lightBlue"
+        app:rippleColor="@color/lightBlue2"
+        app:tint="@color/white"
+        app:srcCompat="@drawable/ic_round_add_24" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/nav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:itemIconSize="@dimen/navItemIconSize"
+        app:itemTextAppearanceActive="@style/navTextStyle"
+        app:itemTextAppearanceInactive="@style/navTextStyle"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_nav_menu"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

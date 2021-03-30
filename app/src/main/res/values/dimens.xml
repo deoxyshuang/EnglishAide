@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <dimen name="fabMargin">16dp</dimen>
+    <dimen name="elevation">16dp</dimen>
+    <dimen name="lightElevation">8dp</dimen>
+    <dimen name="barPadding">13dp</dimen>
+    <dimen name="bottombarPadding">10dp</dimen>
+    <dimen name="buttonMargin">10dp</dimen>
+    <dimen name="navItemIconSize">25dp</dimen>
+    <dimen name="design_bottom_navigation_text_size" tools:override="true">11sp</dimen>
+    <dimen name="titleTextSize">18sp</dimen>
+    <dimen name="titleMarginStart">30dp</dimen>
+    <dimen name="btnMinHeight">35dp</dimen>
+    <dimen name="spnPadding">10dp</dimen>
+    <dimen name="contentTextSize">17sp</dimen>
+    <dimen name="comSpacing">10dp</dimen>
+    <dimen name="verElmSpacing">12dp</dimen>
+</resources>

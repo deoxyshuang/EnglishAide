@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+<!--    <include layout="@layout/no_toolbar"/>-->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@color/lightBlue"
+        app:titleTextColor="@color/white"
+        android:elevation="@dimen/fabMargin">
+    </androidx.appcompat.widget.Toolbar>
+
+    <!-- todo 寫進相關資源檔 -->
+    <ScrollView
+        android:id="@+id/sv"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintVertical_weight="1"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintBottom_toTopOf="@+id/bottomLayout"
+        android:background="@color/bgGray">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/mainArea"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="@dimen/fabMargin"
+            android:paddingEnd="@dimen/fabMargin"
+            android:paddingStart="@dimen/fabMargin">
+
+            <TextView
+                android:id="@+id/txtFami"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBaseline_toBaselineOf="@id/spnFami"
+                android:textSize="@dimen/contentTextSize"
+                android:textColor="@color/black"
+                android:text="@string/fami"/>
+
+            <Spinner
+                android:id="@+id/spnFami"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@+id/txtFami"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginStart="@dimen/comSpacing"
+                style="@style/spnTheme"
+                android:prompt="@string/fami"/>
+
+            <Spinner
+                android:id="@+id/spnType"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txtFami"
+                app:layout_constraintBaseline_toBaselineOf="@id/edtWord"
+                android:layout_marginTop="@dimen/fabMargin"
+                style="@style/spnTheme" />
+
+            <EditText
+                android:id="@+id/edtWord"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/spnType"
+                app:layout_constraintTop_toBottomOf="@+id/spnFami"
+                android:layout_marginStart="@dimen/comSpacing"
+                android:layout_marginTop="@dimen/comSpacing"/>
+
+            <LinearLayout
+                android:id="@+id/cvArea"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/edtWord"
+                android:layout_marginTop="@dimen/comSpacing">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cvGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="2dp"
+                    app:contentPadding="10dp"
+                    app:strokeWidth="2dp"
+                    app:cardBackgroundColor="@color/bgGray"
+                    app:strokeColor="@color/lightBlue2">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <Spinner
+                                android:id="@+id/spnPart"
+                                android:layout_height="wrap_content"
+                                android:layout_width="wrap_content"
+                                android:prompt="@string/partOfspeech"
+                                style="@style/spnTheme" />
+
+                            <EditText
+                                android:id="@+id/edtMean"
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/comSpacing"
+                                android:textSize="@dimen/contentTextSize"
+                                android:hint="中文解釋"
+                                android:textColorHint="@color/lightGray"/>
+
+                        </LinearLayout>
+
+                        <EditText
+                            android:id="@+id/edtSentence"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/comSpacing"
+                            android:textSize="@dimen/contentTextSize"
+                            android:hint="例句"
+                            android:textColorHint="@color/lightGray" />
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/ivAdd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cvArea"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="@dimen/comSpacing"
+                android:src="@drawable/selector_imageview"
+                android:clickable="true"
+                />
+
+            <!--單字磁性變化區Start-->
+<!--            <TextView-->
+<!--                android:id="@+id/txtPlural"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/spnPart"-->
+<!--                app:layout_constraintEnd_toStartOf="@id/edtPlural"-->
+<!--                app:layout_constraintBaseline_toBaselineOf="@+id/edtPlural"-->
+<!--                android:layout_marginEnd="@dimen/fabMargin"-->
+<!--                android:textSize="17sp"-->
+<!--                android:text="名詞複數"/>-->
+<!--            <EditText-->
+<!--                android:id="@+id/edtPlural"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintStart_toEndOf="@id/txtPlural"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/edtMean"/>-->
+
+
+
+<!--            <TextView-->
+<!--                android:id="@+id/txtPast"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/spnPart"-->
+<!--                app:layout_constraintEnd_toStartOf="@id/edtPast"-->
+<!--                app:layout_constraintBaseline_toBaselineOf="@+id/edtPast"-->
+<!--                android:layout_marginEnd="@dimen/fabMargin"-->
+<!--                android:textSize="17sp"-->
+<!--                android:text="過去式"/>-->
+<!--            <EditText-->
+<!--                android:id="@+id/edtPast"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintStart_toEndOf="@id/txtPast"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/edtMean"/>-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/txtPP"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/txtPast"-->
+<!--                app:layout_constraintEnd_toStartOf="@id/edtPP"-->
+<!--                app:layout_constraintBaseline_toBaselineOf="@+id/edtPP"-->
+<!--                android:layout_marginEnd="@dimen/fabMargin"-->
+<!--                android:textSize="17sp"-->
+<!--                android:text="過去分詞"/>-->
+<!--            <EditText-->
+<!--                android:id="@+id/edtPP"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintStart_toEndOf="@id/txtPP"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/edtPast"/>-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/txtPresent"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/txtPP"-->
+<!--                app:layout_constraintEnd_toStartOf="@id/edtPresent"-->
+<!--                app:layout_constraintBaseline_toBaselineOf="@+id/edtPresent"-->
+<!--                android:layout_marginEnd="@dimen/fabMargin"-->
+<!--                android:textSize="17sp"-->
+<!--                android:text="現在分詞"/>-->
+<!--            <EditText-->
+<!--                android:id="@+id/edtPresent"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintStart_toEndOf="@+id/txtPresent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/edtPP"/>-->
+
+
+
+<!--            <TextView-->
+<!--                android:id="@+id/txtCompar"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/spnPart"-->
+<!--                app:layout_constraintEnd_toStartOf="@id/edtCompar"-->
+<!--                app:layout_constraintBaseline_toBaselineOf="@+id/edtCompar"-->
+<!--                android:layout_marginEnd="@dimen/fabMargin"-->
+<!--                android:textSize="17sp"-->
+<!--                android:text="比較級"/>-->
+<!--            <EditText-->
+<!--                android:id="@+id/edtCompar"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintStart_toEndOf="@+id/txtCompar"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/edtMean"/>-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/txtSuper"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/txtCompar"-->
+<!--                app:layout_constraintEnd_toStartOf="@id/edtSuper"-->
+<!--                app:layout_constraintBaseline_toBaselineOf="@+id/edtSuper"-->
+<!--                android:layout_marginEnd="@dimen/fabMargin"-->
+<!--                android:textSize="17sp"-->
+<!--                android:text="最高級"/>-->
+<!--            <EditText-->
+<!--                android:id="@+id/edtSuper"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                app:layout_constraintStart_toEndOf="@id/txtSuper"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@+id/edtCompar"/>-->
+
+            <!--單字磁性變化區End-->
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/myCoordinatorLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/bottomLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <LinearLayout
+        android:id="@+id/bottomLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/white"
+        android:padding="@dimen/bottombarPadding"
+        android:elevation="@dimen/lightElevation">
+        <Button
+            android:id="@+id/btnSave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_button"
+            android:textColor="@color/white"
+            android:minHeight="@dimen/btnMinHeight"
+            android:text="@string/save"/>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
