@@ -1,12 +1,14 @@
 package com.bear.englishaide;
 
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.res.Resources;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -31,6 +33,7 @@ import androidx.core.content.ContextCompat;
 
 public class EditWordCardActivity extends AppCompatActivity implements View.OnClickListener{
 
+    private Resources res;
     private EditText edtWord,edtMean,edtSentence,edtPlural,edtPast,edtPP,edtPresent,edtCompar,edtSuper;
     private TextView txtPlural,txtPast,txtPP,txtPresent,txtCompar,txtSuper;
     private Button btnSave;
@@ -39,13 +42,19 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
     private Word word;
     private Gson gson;
     private View viewPos;
-    private ArrayList spnPartList=new ArrayList<Spinner>(),edtMeanList=new ArrayList<EditText>(),edtSentenceList=new <EditText>ArrayList();
+    private ScrollView sv;
+    private ArrayList<Spinner> spnPartList=new ArrayList<>();
+    private ArrayList<EditText> edtMeanList=new ArrayList<>(),edtSentenceList=new ArrayList<>();
+    private LayoutInflater layoutInflater;
+    private int[] famiKeyList,partKeyList;
+    private LinearLayout cvArea;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_wordcard);
 
+        res = getResources();
         gson = new Gson();
         word = new Word();
 
@@ -70,6 +79,9 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
         edtWord = findViewById(R.id.edtWord);
         edtMean = findViewById(R.id.edtMean);
         edtSentence = findViewById(R.id.edtSentence);
+
+        edtMeanList.add(edtMean);
+        edtSentenceList.add(edtSentence);
 //        edtPlural = findViewById(R.id.edtPlural);
 //        edtPast = findViewById(R.id.edtPast);
 //        edtPP = findViewById(R.id.edtPP);
@@ -112,6 +124,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
         adapter2.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
 //        spnPart.setBackground(getDrawable(R.drawable.spinner_back));
         spnPart.setAdapter(adapter2);
+        spnPartList.add(spnPart);
 
         spnFami = (Spinner) findViewById(R.id.spnFami);
         ArrayAdapter<CharSequence> adapter3 = ArrayAdapter.createFromResource(this,
@@ -149,7 +162,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
 //                    txtSuper.setVisibility(View.GONE);
                 }else{ //單字
                     spnPart.setVisibility(View.VISIBLE);
-                    params.setMarginStart((int) getResources().getDimension(R.dimen.comSpacing));
+                    params.setMarginStart((int) res.getDimension(R.dimen.comSpacing));
                     edtMean.setLayoutParams(params);
                     //setDetailEdt(spnPart.getSelectedItemPosition());
                 }
@@ -174,6 +187,11 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
 
 
         viewPos = findViewById(R.id.myCoordinatorLayout);
+        sv = findViewById(R.id.sv);
+        cvArea = findViewById(R.id.cvArea);
+
+        famiKeyList = res.getIntArray(R.array.famiKeyList);
+        partKeyList = res.getIntArray(R.array.partKeyList);
     }
 
 
@@ -249,20 +267,22 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
             case R.id.btnSave:
                 if(!"".equals((edtWord.getText().toString().trim()))){
                     word.meanListInit();
-                    int[] famiKeyList = getResources().getIntArray(R.array.famiKeyList);
                     word.fami = famiKeyList[spnFami.getSelectedItemPosition()];
                     word.word = edtWord.getText().toString();
 
-                    Mean mean = new Mean();
-                    mean.part = 1; //名詞
-                    mean.mean = edtMean.getText().toString();
+                    for(int i=0;i<spnPartList.size();i++){
+                        Mean mean = new Mean();
+                        mean.part = partKeyList[spnPartList.get(i).getSelectedItemPosition()];
+                        mean.mean = edtMeanList.get(i).getText().toString();
 
-                    Sentence sentence = new Sentence();
-                    sentence.eng = edtSentence.getText().toString();
+                        Sentence sentence = new Sentence();
+                        sentence.eng = edtSentenceList.get(i).getText().toString();
 
-                    mean.sentenceListInit();
-                    mean.sentenceList.add(sentence);
-                    word.meanList.add(mean);
+                        mean.sentenceListInit();
+                        mean.sentenceList.add(sentence);
+                        //Log.d("sj","mean:" + gson.toJson(mean)); //{"mean":"","part":1,"sentenceList":[{"eng":""}]}
+                        word.meanList.add(mean);
+                    }
 
                     String json = gson.toJson(word);
                     Log.d("sj","obj->json:" + json);
@@ -275,13 +295,14 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                         ContentValues values = new ContentValues();
                         values.put("type", spnType.getSelectedItemPosition()+1);
                         values.put("data", json);
-                        db.insert(DBHelper.TABLE_NAME, null, values);
-                        msg=getResources().getString(R.string.saveOK);
-                        colorId=getResources().getColor(R.color.successGreen);
+                        //todo temp
+                        //db.insert(DBHelper.TABLE_NAME, null, values);
+                        msg=res.getString(R.string.saveOK);
+                        colorId=ContextCompat.getColor(this,R.color.successGreen);
                     }catch (SQLException e){
                         e.printStackTrace();
-                        msg=getResources().getString(R.string.saveNG)+e.getMessage();
-                        colorId=getResources().getColor(R.color.failureRed);
+                        msg=res.getString(R.string.saveNG)+e.getMessage();
+                        colorId=ContextCompat.getColor(this,R.color.failureRed);
                     }finally {
                         Snackbar.make(viewPos, msg, Snackbar.LENGTH_SHORT)
                                 //.setAction("關閉", null)
@@ -289,7 +310,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                                 .show();
                     }
                 }else{
-                    Snackbar.make(viewPos, getResources().getString(R.string.alertMsg), Snackbar.LENGTH_SHORT)
+                    Snackbar.make(viewPos, res.getString(R.string.alertMsg), Snackbar.LENGTH_SHORT)
                             .show();
                 }
 
@@ -299,29 +320,28 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
 //                break;
 
             case R.id.ivAdd:
-                LinearLayout cvArea = findViewById(R.id.cvArea);
                 //cardview
                 MaterialCardView cv = new MaterialCardView(this);
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+                layoutParams.setMargins(0,0,0,(int) Utils.convertDpToPx(this,10));
                 cv.setLayoutParams(layoutParams);
-                cv.setCardElevation(2);
-                cv.setRadius(15);
-                cv.setContentPadding(10,10,10,10);
-                cv.setStrokeWidth(2);
-                cv.setCardBackgroundColor(ContextCompat.getColor(this,R.color.bgGray)); //todo 全面修改getColor寫法
+                cv.setCardElevation((int) Utils.convertDpToPx(this,2));
+                cv.setRadius((int) Utils.convertDpToPx(this,15));
+                cv.setContentPadding((int) Utils.convertDpToPx(this,10),(int) Utils.convertDpToPx(this,10),(int) Utils.convertDpToPx(this,10),(int) Utils.convertDpToPx(this,10));
+                cv.setStrokeWidth((int) Utils.convertDpToPx(this,2));
+                cv.setCardBackgroundColor(ContextCompat.getColor(this,R.color.bgGray));
                 cv.setStrokeColor(ContextCompat.getColor(this,R.color.lightBlue2));
                 //包裹兩行的Linear
                 LinearLayout wrapper = new LinearLayout(this);
-                wrapper.setLayoutParams(layoutParams);
+                wrapper.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
                 wrapper.setOrientation(LinearLayout.VERTICAL);
                 //第一行
                 LinearLayout linearLayout = new LinearLayout(this);
-                linearLayout.setLayoutParams(layoutParams);
-                //todo set style
-                Spinner spinner = new Spinner(this);
+                linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
+                layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                Spinner spinner = (Spinner)layoutInflater.inflate(R.layout.spinner_style, null);
                 LinearLayout.LayoutParams viewParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
                 spinner.setLayoutParams(viewParams);
-                spinner.setPrompt(getResources().getString(R.string.partOfspeech));
                 ArrayAdapter<CharSequence> ad = ArrayAdapter.createFromResource(this,
                         R.array.partList,
                         android.R.layout.simple_spinner_item);
@@ -332,11 +352,10 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                 EditText et = new EditText(this);
                 LinearLayout.LayoutParams selfParam = new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT);
                 selfParam.weight=1;
-                selfParam.setMarginStart((int) getResources().getDimension(R.dimen.comSpacing));
+                selfParam.setMarginStart((int) res.getDimension(R.dimen.comSpacing));
                 et.setLayoutParams(selfParam);
-                        //todo 了解單位轉換
-                et.setTextSize(TypedValue.COMPLEX_UNIT_PX,getResources().getDimension(R.dimen.contentTextSize));
-                et.setHint("中文解釋");
+                et.setTextSize(TypedValue.COMPLEX_UNIT_PX,res.getDimension(R.dimen.contentTextSize));
+                et.setHint(res.getString(R.string.mean));
                 et.setHintTextColor(ContextCompat.getColor(this,R.color.lightGray));
                 edtMeanList.add(et);
 
@@ -345,11 +364,11 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
 
                 //第二行
                 EditText editText = new EditText(this);
-                layoutParams.setMargins(0,10,0,0);
-                editText.setLayoutParams(layoutParams);
-                editText.setTextSize(getResources().getDimension(R.dimen.contentTextSize));
-                Log.d("sj","getResources().getDimension(R.dimen.contentTextSize)="+getResources().getDimension(R.dimen.contentTextSize));
-                editText.setHint("例句");
+                LinearLayout.LayoutParams edtParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+                edtParams.setMargins(0,(int) Utils.convertDpToPx(this,10),0,0);
+                editText.setLayoutParams(edtParams);
+                editText.setTextSize(TypedValue.COMPLEX_UNIT_PX,res.getDimension(R.dimen.contentTextSize));
+                editText.setHint(res.getString(R.string.example));
                 editText.setHintTextColor(ContextCompat.getColor(this,R.color.lightGray));
                 edtSentenceList.add(editText);
 
@@ -358,12 +377,8 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                 cv.addView(wrapper);
                 cvArea.addView(cv);
 
-                ScrollView sv = findViewById(R.id.sv);
-                sv.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        sv.fullScroll(ScrollView.FOCUS_DOWN); //自動滑至底部
-                    }
+                sv.post(() -> {
+                    sv.fullScroll(ScrollView.FOCUS_DOWN); //強制滾動至底
                 });
                 break;
 

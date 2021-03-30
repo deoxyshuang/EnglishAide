@@ -12,6 +12,8 @@
     <string name="save">儲存</string>
     <string name="saveOK">儲存成功</string>
     <string name="saveNG">儲存失敗 ERROR:</string>
+    <string name="mean">中文解釋</string>
+    <string name="example">例句</string>
     <string-array name="typeList">
         <item>單字</item>
         <item>片語</item>
@@ -31,7 +33,7 @@
         <item>介系詞(prep.)</item>
         <item>連接詞(conj.)</item>
     </string-array>
-    <string-array name="partKeyList">
+    <integer-array name="partKeyList">
         <item>1</item>
         <item>2</item>
         <item>3</item>
@@ -40,7 +42,7 @@
         <item>6</item>
         <item>7</item>
         <item>8</item>
-    </string-array>
+    </integer-array>
     <string name="fami">熟悉度</string>
     <string-array name="famiList">
         <item>高</item>

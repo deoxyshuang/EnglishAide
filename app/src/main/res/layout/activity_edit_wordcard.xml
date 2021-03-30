@@ -99,7 +99,8 @@
                     app:contentPadding="10dp"
                     app:strokeWidth="2dp"
                     app:cardBackgroundColor="@color/bgGray"
-                    app:strokeColor="@color/lightBlue2">
+                    app:strokeColor="@color/lightBlue2"
+                    android:layout_marginBottom="@dimen/comSpacing">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -124,7 +125,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="@dimen/comSpacing"
                                 android:textSize="@dimen/contentTextSize"
-                                android:hint="中文解釋"
+                                android:hint="@string/mean"
                                 android:textColorHint="@color/lightGray"/>
 
                         </LinearLayout>
@@ -135,7 +136,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/comSpacing"
                             android:textSize="@dimen/contentTextSize"
-                            android:hint="例句"
+                            android:hint="@string/example"
                             android:textColorHint="@color/lightGray" />
 
                     </LinearLayout>
@@ -149,7 +150,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/cvArea"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:layout_marginTop="@dimen/comSpacing"
                 android:src="@drawable/selector_imageview"
                 android:clickable="true"
                 />
