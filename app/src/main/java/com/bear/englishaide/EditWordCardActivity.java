@@ -8,12 +8,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -45,6 +47,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
     private ScrollView sv;
     private ArrayList<Spinner> spnPartList=new ArrayList<>();
     private ArrayList<EditText> edtMeanList=new ArrayList<>(),edtSentenceList=new ArrayList<>();
+    private ArrayList<ImageView> ivRemoveList=new ArrayList<>();
     private LayoutInflater layoutInflater;
     private int[] famiKeyList,partKeyList;
     private LinearLayout cvArea;
@@ -320,10 +323,13 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
 //                break;
 
             case R.id.ivAdd:
+                //包裹cardview及刪除按鈕
+                FrameLayout frameLayout = new FrameLayout(this);
+                frameLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
                 //cardview
                 MaterialCardView cv = new MaterialCardView(this);
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-                layoutParams.setMargins(0,0,0,(int) Utils.convertDpToPx(this,10));
+                layoutParams.setMargins(0,(int) Utils.convertDpToPx(this,12),0,(int) Utils.convertDpToPx(this,10));
                 cv.setLayoutParams(layoutParams);
                 cv.setCardElevation((int) Utils.convertDpToPx(this,2));
                 cv.setRadius((int) Utils.convertDpToPx(this,15));
@@ -375,8 +381,22 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                 wrapper.addView(linearLayout);
                 wrapper.addView(editText);
                 cv.addView(wrapper);
-                cvArea.addView(cv);
+                frameLayout.addView(cv);
 
+                //cv右上角 移除按鈕
+                ImageView ivRemove = new ImageView(this);
+                FrameLayout.LayoutParams ivParams = new FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+                ivParams.gravity= Gravity.TOP | Gravity.END;
+                ivRemove.setLayoutParams(ivParams);
+                ivRemove.setElevation((int) Utils.convertDpToPx(this,5));
+                ivRemove.setBackground(ContextCompat.getDrawable(this,R.drawable.selector_iv_remove));
+                ivRemove.setClickable(true);
+                frameLayout.addView(ivRemove);
+                cvArea.addView(frameLayout);
+
+                ivRemove.setOnClickListener(v->{
+                    cvArea.removeView(frameLayout);
+                });
                 sv.post(() -> {
                     sv.fullScroll(ScrollView.FOCUS_DOWN); //強制滾動至底
                 });

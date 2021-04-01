@@ -13,7 +13,8 @@
     <color name="bgGray">#F0F0F0</color>
     <color name="lightBlue2">#bcd7ef</color>
     <color name="successGreen">#55cc77</color>
-    <color name="failureRed">#ee4d2d</color>
+    <color name="failureRed">#f14f4f</color>
+    <color name="pressedRed">#FFAEAE</color>
 <!--    <color name="gray">#808080</color>-->
 <!--    <color name="lightOrange">#efbc37</color>-->
 <!--    <color name="lightOrange2">#f5d785</color>-->

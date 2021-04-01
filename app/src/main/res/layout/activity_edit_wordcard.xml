@@ -102,45 +102,43 @@
                     app:strokeColor="@color/lightBlue2"
                     android:layout_marginBottom="@dimen/comSpacing">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
                         <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
 
-                            <Spinner
-                                android:id="@+id/spnPart"
-                                android:layout_height="wrap_content"
-                                android:layout_width="wrap_content"
-                                android:prompt="@string/partOfspeech"
-                                style="@style/spnTheme" />
+                                <Spinner
+                                    android:id="@+id/spnPart"
+                                    android:layout_height="wrap_content"
+                                    android:layout_width="wrap_content"
+                                    android:prompt="@string/partOfspeech"
+                                    style="@style/spnTheme" />
+
+                                <EditText
+                                    android:id="@+id/edtMean"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="1"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="@dimen/comSpacing"
+                                    android:textSize="@dimen/contentTextSize"
+                                    android:hint="@string/mean"
+                                    android:textColorHint="@color/lightGray"/>
+                            </LinearLayout>
 
                             <EditText
-                                android:id="@+id/edtMean"
-                                android:layout_width="0dp"
-                                android:layout_weight="1"
+                                android:id="@+id/edtSentence"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginStart="@dimen/comSpacing"
+                                android:layout_marginTop="@dimen/comSpacing"
                                 android:textSize="@dimen/contentTextSize"
-                                android:hint="@string/mean"
-                                android:textColorHint="@color/lightGray"/>
-
+                                android:hint="@string/example"
+                                android:textColorHint="@color/lightGray" />
                         </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
-                        <EditText
-                            android:id="@+id/edtSentence"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/comSpacing"
-                            android:textSize="@dimen/contentTextSize"
-                            android:hint="@string/example"
-                            android:textColorHint="@color/lightGray" />
-
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
             </LinearLayout>
 
             <ImageView
@@ -150,9 +148,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/cvArea"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:src="@drawable/selector_imageview"
-                android:clickable="true"
-                />
+                android:src="@drawable/selector_iv_add"
+                android:clickable="true" />
 
             <!--單字磁性變化區Start-->
 <!--            <TextView-->
