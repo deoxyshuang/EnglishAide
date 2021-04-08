@@ -34,6 +34,8 @@ public class WordCardsFragment extends Fragment {
     private Gson gson = new Gson();
     private ArrayList<Word> vocabList=new ArrayList(),phrList=new ArrayList();
     private SQLiteDatabase db;
+    private DBHelper dbHelper;
+    private Cursor cursor;
     private MyAdapter myAdapter;
 
     @Override
@@ -41,21 +43,25 @@ public class WordCardsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         vocabList.clear();
         phrList.clear();
+        Log.d("sj","frag onCreate");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        Log.d("sj","frag onCreateView");
         mainView = inflater.inflate(R.layout.fragment_wordcards, container, false);
         tv = mainView.findViewById(R.id.tv);
         iv = mainView.findViewById(R.id.iv);
         recyclerView = mainView.findViewById(R.id.recyclerView);
+        dataQuery();
+        return mainView;
+    }
 
-        //查詢
-        DBHelper dbHelper = new DBHelper(mainView.getContext());
+    private void dataQuery(){ //字卡查詢
+        dbHelper = new DBHelper(mainView.getContext());
         db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("select * from " + DBHelper.TABLE_NAME,null);
+        cursor = db.rawQuery("select * from " + DBHelper.TABLE_NAME,null);
         if (cursor != null) {
             Log.d("sj","有幾筆資料:" + cursor.getCount());
             if(cursor.getCount()>0){
@@ -86,9 +92,22 @@ public class WordCardsFragment extends Fragment {
                 //Toast.makeText(this, "尚無資料!", Toast.LENGTH_SHORT).show();
             }
         }
-        return mainView;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        //dataQuery();
+        Log.d("sj","frag onStart");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if(!cursor.isClosed()) cursor.close();
+        if(!db.isOpen()) db.close();
+        if(dbHelper!=null) dbHelper.close();
+    }
 
 
     public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {

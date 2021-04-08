@@ -87,7 +87,15 @@ public class MainActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.wordCards:
                         fab.show();
+                        //todo add() + show() + hide() 取代 replace()
+                        //todo fragmentManager.beginTransaction(); fragmentTransaction.commit(); 移位置
                         fragmentTransaction = fragmentManager.beginTransaction();
+                        /*if(wordCardsFragment.isAdded()){
+
+                        }else{
+
+                        }*/
+                        //.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                         fragmentTransaction.replace(R.id.containerLayout, wordCardsFragment);
                         fragmentTransaction.commit();
                         return true;
@@ -107,21 +115,6 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
-    }
-
-    //todo 關閉資料庫相關
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        /*if(!cursor.isClosed()) cursor.close();
-        if(!db.isOpen()) db.close();
-        if(dbHelper!=null) dbHelper.close();*/
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        //todo 重刷fragment列表查詢
     }
 
     @Override

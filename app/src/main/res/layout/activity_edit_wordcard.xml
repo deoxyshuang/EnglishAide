@@ -108,7 +108,8 @@
                             android:orientation="vertical">
                             <LinearLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
 
                                 <Spinner
                                     android:id="@+id/spnPart"
@@ -128,14 +129,26 @@
                                     android:textColorHint="@color/lightGray"/>
                             </LinearLayout>
 
-                            <EditText
-                                android:id="@+id/edtSentence"
+                            <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="@dimen/comSpacing"
-                                android:textSize="@dimen/contentTextSize"
-                                android:hint="@string/example"
-                                android:textColorHint="@color/lightGray" />
+                                android:orientation="horizontal"
+                                android:layout_marginTop="@dimen/comSpacing">
+                                    <EditText
+                                        android:id="@+id/edtSentence"
+                                        android:layout_width="0dp"
+                                        android:layout_weight="1"
+                                        android:layout_height="wrap_content"
+                                        android:textSize="@dimen/contentTextSize"
+                                        android:hint="@string/example"
+                                        android:textColorHint="@color/lightGray"/>
+                                    <ImageView
+                                        android:id="@+id/ivAddSen"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:src="@drawable/ic_round_add_24"
+                                        android:baselineAlignBottom="true"/>
+                            </LinearLayout>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
 
