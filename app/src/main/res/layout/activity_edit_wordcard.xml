@@ -103,6 +103,7 @@
                     android:layout_marginBottom="@dimen/comSpacing">
 
                         <LinearLayout
+                            android:id="@+id/cvSection"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
@@ -147,7 +148,8 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:src="@drawable/ic_round_add_24"
-                                        android:baselineAlignBottom="true"/>
+                                        android:layout_gravity="center_vertical"
+                                        android:clickable="true"/>
                             </LinearLayout>
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>

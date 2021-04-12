@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.google.android.material.card.MaterialCardView;
@@ -28,6 +29,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -40,17 +42,17 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
     private TextView txtPlural,txtPast,txtPP,txtPresent,txtCompar,txtSuper;
     private Button btnSave;
     private Spinner spnFami,spnType,spnPart;
-    private ImageView ivAdd;
+    private ImageView ivAdd,ivAddSen;
     private Word word;
     private Gson gson;
     private View viewPos;
     private ScrollView sv;
-    private ArrayList<Spinner> spnPartList=new ArrayList<>();
-    private ArrayList<EditText> edtMeanList=new ArrayList<>(),edtSentenceList=new ArrayList<>();
-    private ArrayList<ImageView> ivRemoveList=new ArrayList<>();
+    private ArrayList<HashMap> dataList=new ArrayList<>();
+    private ArrayList<EditText> firstSenList=new ArrayList<>();
+    private HashMap<String,Object> firstData = new HashMap<>();
     private LayoutInflater layoutInflater;
     private int[] famiKeyList,partKeyList;
-    private LinearLayout cvArea;
+    private LinearLayout cvArea,cvSection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +77,8 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
 
         ivAdd = findViewById(R.id.ivAdd);
         ivAdd.setOnClickListener(this);
+        ivAddSen = findViewById(R.id.ivAddSen);
+        ivAddSen.setOnClickListener(this);
 
         btnSave = findViewById(R.id.btnSave);
         btnSave.setOnClickListener(this);
@@ -83,8 +87,10 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
         edtMean = findViewById(R.id.edtMean);
         edtSentence = findViewById(R.id.edtSentence);
 
-        edtMeanList.add(edtMean);
-        edtSentenceList.add(edtSentence);
+        firstData.put("mean",edtMean);
+        firstSenList.add(edtSentence);
+        firstData.put("sentence",firstSenList);
+
 //        edtPlural = findViewById(R.id.edtPlural);
 //        edtPast = findViewById(R.id.edtPast);
 //        edtPP = findViewById(R.id.edtPP);
@@ -113,23 +119,24 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
 
 
 
-        spnType = (Spinner) findViewById(R.id.spnType);
+        spnType = findViewById(R.id.spnType);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                         R.array.typeList,
                         android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
         spnType.setAdapter(adapter);
 
-        spnPart = (Spinner) findViewById(R.id.spnPart);
+        spnPart =  findViewById(R.id.spnPart);
         ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(this,
                         R.array.partList,
                         android.R.layout.simple_spinner_item);
         adapter2.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
 //        spnPart.setBackground(getDrawable(R.drawable.spinner_back));
         spnPart.setAdapter(adapter2);
-        spnPartList.add(spnPart);
+        firstData.put("part",spnPart);
+        dataList.add(firstData);
 
-        spnFami = (Spinner) findViewById(R.id.spnFami);
+        spnFami = findViewById(R.id.spnFami);
         ArrayAdapter<CharSequence> adapter3 = ArrayAdapter.createFromResource(this,
                 R.array.famiList,
                 android.R.layout.simple_spinner_item);
@@ -192,6 +199,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
         viewPos = findViewById(R.id.myCoordinatorLayout);
         sv = findViewById(R.id.sv);
         cvArea = findViewById(R.id.cvArea);
+        cvSection = findViewById(R.id.cvSection);
 
         famiKeyList = res.getIntArray(R.array.famiKeyList);
         partKeyList = res.getIntArray(R.array.partKeyList);
@@ -273,16 +281,21 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                     word.fami = famiKeyList[spnFami.getSelectedItemPosition()];
                     word.word = edtWord.getText().toString();
 
-                    for(int i=0;i<spnPartList.size();i++){
+                    for(int i=0;i<dataList.size();i++){
                         Mean mean = new Mean();
-                        mean.part = partKeyList[spnPartList.get(i).getSelectedItemPosition()];
-                        mean.mean = edtMeanList.get(i).getText().toString();
+                        Spinner p = (Spinner) dataList.get(i).get("part");
+                        mean.part = partKeyList[p.getSelectedItemPosition()];
+                        EditText m = (EditText) dataList.get(i).get("mean");
+                        mean.mean = m.getText().toString();
 
-                        Sentence sentence = new Sentence();
-                        sentence.eng = edtSentenceList.get(i).getText().toString();
-
+                        ArrayList<EditText> senList = (ArrayList<EditText>) dataList.get(i).get("sentence");
                         mean.sentenceListInit();
-                        mean.sentenceList.add(sentence);
+                        for(int j=0;j<senList.size();j++){
+                            Sentence sentence = new Sentence();
+                            sentence.eng = senList.get(j).getText().toString();
+
+                            mean.sentenceList.add(sentence);
+                        }
                         //Log.d("sj","mean:" + gson.toJson(mean)); //{"mean":"","part":1,"sentenceList":[{"eng":""}]}
                         word.meanList.add(mean);
                     }
@@ -298,8 +311,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                         ContentValues values = new ContentValues();
                         values.put("type", spnType.getSelectedItemPosition()+1);
                         values.put("data", json);
-                        //todo temp
-                        //db.insert(DBHelper.TABLE_NAME, null, values);
+                        db.insert(DBHelper.TABLE_NAME, null, values);
                         msg=res.getString(R.string.saveOK);
                         colorId=ContextCompat.getColor(this,R.color.successGreen);
                     }catch (SQLException e){
@@ -353,7 +365,9 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                         android.R.layout.simple_spinner_item);
                 ad.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
                 spinner.setAdapter(ad);
-                spnPartList.add(spinner);
+                HashMap<String,Object> dataHashMap = new HashMap();
+                dataHashMap.put("part",spinner);
+
                 //
                 EditText et = new EditText(this);
                 LinearLayout.LayoutParams selfParam = new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -363,23 +377,43 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                 et.setTextSize(TypedValue.COMPLEX_UNIT_PX,res.getDimension(R.dimen.contentTextSize));
                 et.setHint(res.getString(R.string.mean));
                 et.setHintTextColor(ContextCompat.getColor(this,R.color.lightGray));
-                edtMeanList.add(et);
+                dataHashMap.put("mean",et);
 
                 linearLayout.addView(spinner);
                 linearLayout.addView(et);
 
                 //第二行
+                LinearLayout linearLayout2 = new LinearLayout(this);;
+                LinearLayout.LayoutParams linear2 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+                linear2.setMargins(0, (int) res.getDimension(R.dimen.comSpacing),0,0);
+                linearLayout2.setLayoutParams(linear2);
+                linearLayout2.setOrientation(LinearLayout.HORIZONTAL);
+
                 EditText editText = new EditText(this);
-                LinearLayout.LayoutParams edtParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-                edtParams.setMargins(0,(int) Utils.convertDpToPx(this,10),0,0);
+                LinearLayout.LayoutParams edtParams = new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT);
+                edtParams.weight=1;
                 editText.setLayoutParams(edtParams);
                 editText.setTextSize(TypedValue.COMPLEX_UNIT_PX,res.getDimension(R.dimen.contentTextSize));
                 editText.setHint(res.getString(R.string.example));
                 editText.setHintTextColor(ContextCompat.getColor(this,R.color.lightGray));
-                edtSentenceList.add(editText);
+                ArrayList<EditText> edtList = new ArrayList<>();
+                edtList.add(editText);
+                dataHashMap.put("sentence",edtList);
+                dataList.add(dataHashMap);
+
+                //
+                ImageView ivAddSen = new ImageView(this);
+                LinearLayout.LayoutParams par2 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+                par2.gravity=Gravity.CENTER_VERTICAL;
+                ivAddSen.setLayoutParams(par2);
+                ivAddSen.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.ic_round_add_24));
+                ivAddSen.setClickable(true);
+
+                linearLayout2.addView(editText);
+                linearLayout2.addView(ivAddSen);
 
                 wrapper.addView(linearLayout);
-                wrapper.addView(editText);
+                wrapper.addView(linearLayout2);
                 cv.addView(wrapper);
                 frameLayout.addView(cv);
 
@@ -394,7 +428,11 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                 frameLayout.addView(ivRemove);
                 cvArea.addView(frameLayout);
 
-                ivRemove.setOnClickListener(v->{
+                ivAddSen.setOnClickListener(v->{
+                    createNewSen(wrapper,edtList);
+                });
+                ivRemove.setOnClickListener(v->{ //cardview區塊的移除
+                    dataList.remove(dataHashMap);
                     cvArea.removeView(frameLayout);
                 });
                 sv.post(() -> {
@@ -402,6 +440,42 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                 });
                 break;
 
+            case R.id.ivAddSen:
+                createNewSen(cvSection, firstSenList);
+                break;
+
         }
+    }
+    private void createNewSen(LinearLayout parentLayout, ArrayList<EditText> arrayList){ //增加例句
+        LinearLayout newSection = new LinearLayout(this);
+        LinearLayout.LayoutParams newSectionParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+        newSectionParams.setMargins(0, (int) res.getDimension(R.dimen.comSpacing),0,0);
+        newSection.setLayoutParams(newSectionParams);
+        newSection.setOrientation(LinearLayout.HORIZONTAL);
+
+        EditText edtSen = new EditText(this);
+        LinearLayout.LayoutParams edtSenParams = new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT);
+        edtSenParams.weight=1;
+        edtSen.setLayoutParams(edtSenParams);
+        edtSen.setTextSize(TypedValue.COMPLEX_UNIT_PX,res.getDimension(R.dimen.contentTextSize));
+        edtSen.setHint(res.getString(R.string.example));
+        edtSen.setHintTextColor(ContextCompat.getColor(this,R.color.lightGray));
+        arrayList.add(edtSen);
+
+        ImageView ivMinusSen = new ImageView(this);
+        LinearLayout.LayoutParams par = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+        par.gravity=Gravity.CENTER_VERTICAL;
+        ivMinusSen.setLayoutParams(par);
+        ivMinusSen.setImageDrawable(ContextCompat.getDrawable(this,R.drawable.ic_round_remove_24));
+        ivMinusSen.setClickable(true);
+
+        newSection.addView(edtSen);
+        newSection.addView(ivMinusSen);
+        parentLayout.addView(newSection);
+
+        ivMinusSen.setOnClickListener(v->{
+            arrayList.remove(edtSen);
+            parentLayout.removeView(newSection);
+        });
     }
 }
