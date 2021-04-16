@@ -6,8 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +24,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class WordCardsFragment extends Fragment {
@@ -32,7 +35,7 @@ public class WordCardsFragment extends Fragment {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private Gson gson = new Gson();
-    private ArrayList<Word> vocabList=new ArrayList(),phrList=new ArrayList();
+    private ArrayList<HashMap> wordList=new ArrayList();
     private SQLiteDatabase db;
     private DBHelper dbHelper;
     private Cursor cursor;
@@ -41,8 +44,6 @@ public class WordCardsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        vocabList.clear();
-        phrList.clear();
         Log.d("sj","frag onCreate");
     }
 
@@ -58,7 +59,69 @@ public class WordCardsFragment extends Fragment {
         return mainView;
     }
 
-    private void dataQuery(){ //字卡查詢
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        Log.d("sj","frag onAttach");
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        Log.d("sj","frag onViewCreated");
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.d("sj","frag onActivityCreated");
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        Log.d("sj","frag onViewStateRestored");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d("sj","frag onStart");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("sj","frag onResume");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d("sj","frag onPause");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d("sj","frag onStop");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d("sj","frag onDestroyView");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d("sj","frag onDetach");
+    }
+
+    void dataQuery(){ //字卡查詢
+        wordList.clear();
+
         dbHelper = new DBHelper(mainView.getContext());
         db = dbHelper.getReadableDatabase();
         cursor = db.rawQuery("select * from " + DBHelper.TABLE_NAME,null);
@@ -68,11 +131,11 @@ public class WordCardsFragment extends Fragment {
                 while (cursor.moveToNext()) {
                     Word word = gson.fromJson(cursor.getString(2), Word.class);
                     word.id = cursor.getInt(0);
-                    if(cursor.getInt(1)==1){//單字
-                        vocabList.add(word);
-                    }else{//片語
-                        phrList.add(word);
-                    }
+
+                    HashMap<String,Object> wordMap = new HashMap();
+                    wordMap.put("word",word);
+                    wordMap.put("type",cursor.getInt(1)); //1=單字 2=片語
+                    wordList.add(wordMap);
                 }
 
                 tv.setVisibility(View.GONE);
@@ -80,10 +143,9 @@ public class WordCardsFragment extends Fragment {
                 recyclerView.setHasFixedSize(true); //當我們確定Item的改變不會影響RecyclerView的寬高
                 layoutManager = new LinearLayoutManager(mainView.getContext());
                 recyclerView.setLayoutManager(layoutManager);
-                myAdapter = new MyAdapter(mainView.getContext(),vocabList,phrList);
+                myAdapter = new MyAdapter(mainView.getContext(),wordList);
                 recyclerView.setAdapter(myAdapter);
-
-
+                recyclerView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.bgGray));
                 recyclerView.setVisibility(View.VISIBLE);
             }else{
                 tv.setVisibility(View.VISIBLE);
@@ -92,13 +154,6 @@ public class WordCardsFragment extends Fragment {
                 //Toast.makeText(this, "尚無資料!", Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        //dataQuery();
-        Log.d("sj","frag onStart");
     }
 
     @Override
@@ -113,12 +168,11 @@ public class WordCardsFragment extends Fragment {
     public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
         private Context mContext;
-        private ArrayList<Word> vocabList,phrList;
+        private ArrayList<HashMap> wordList;
 
-        public MyAdapter(Context context,ArrayList<Word> vocabList,ArrayList<Word> phrList) {
+        public MyAdapter(Context context,ArrayList<HashMap> wordList) {
             this.mContext = context;
-            this.vocabList = vocabList;
-            this.phrList = phrList;
+            this.wordList = wordList;
         }
 
         @Override
@@ -137,19 +191,25 @@ public class WordCardsFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
-            Word word = vocabList.get(position);
+            HashMap map = wordList.get(position);
+            Word word = (Word) map.get("word");
             holder.tvWord.setText(word.word);
+
+            String[] partList2 = getResources().getStringArray(R.array.partList2);
+            Mean firstMean = word.meanList.get(0);
+            String part = ((int) map.get("type")==1)?partList2[firstMean.part-1]:getResources().getString(R.string.phr);
+            String mean = firstMean.mean.trim();
+            holder.tvWordDesc.setText((!"".equals(mean)?part+" "+mean:""));
+
             holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    Word word = vocabList.get(position);
-
                     AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
                     builder.setMessage("確定要刪除字卡【"+word.word+"】嗎？");
                     builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             db.delete(DBHelper.TABLE_NAME,"id = " + word.id,null);
-                            vocabList.remove(position);
+                            wordList.remove(position);
                             notifyDataSetChanged();
                         }
                     });
@@ -170,44 +230,18 @@ public class WordCardsFragment extends Fragment {
 
         @Override
         public int getItemCount() {
-            return vocabList.size();
+            return wordList.size();
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
 
-            public TextView tvWord;
+            public TextView tvWord,tvWordDesc;
 
             public ViewHolder(View itemView) {
                 super(itemView); //**這個子類constructor必需呼叫super constructor
 
                 tvWord = itemView.findViewById(R.id.tvWord);
-//                itemView.setOnLongClickListener(new View.OnLongClickListener() {
-//                    @Override
-//                    public boolean onLongClick(View view) {
-//                        Word word = vocabList.get(getAdapterPosition());
-//
-//                        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-//                        builder.setMessage("確定要刪除字卡【"+word.word+"】嗎？");
-//                        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int id) {
-//                                db.delete(DBHelper.TABLE_NAME,"id = " + word.id,null);
-//                                //todo 畫面refresh
-//                                notifyDataSetChanged();
-//                            }
-//                        });
-//                        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialogInterface, int id) {
-//
-//                            }
-//                        });
-//                        AlertDialog dialog = builder.create();
-//                        dialog.show();
-//
-//
-//                        return false;
-//                    }
-//                });
+                tvWordDesc = itemView.findViewById(R.id.tvWordDesc);
             }
         }
     }

@@ -273,6 +273,12 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
     }
 
     @Override
+    public void finish() {
+        setResult(RESULT_OK);
+        super.finish();
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btnSave:
@@ -311,7 +317,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                         ContentValues values = new ContentValues();
                         values.put("type", spnType.getSelectedItemPosition()+1);
                         values.put("data", json);
-                        db.insert(DBHelper.TABLE_NAME, null, values);
+                        db.insertOrThrow(DBHelper.TABLE_NAME, null, values);
                         msg=res.getString(R.string.saveOK);
                         colorId=ContextCompat.getColor(this,R.color.successGreen);
                     }catch (SQLException e){
@@ -336,6 +342,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
 
             case R.id.ivAdd:
                 //包裹cardview及刪除按鈕
+                //todo Coordinator
                 FrameLayout frameLayout = new FrameLayout(this);
                 frameLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT));
                 //cardview
@@ -365,8 +372,8 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                         android.R.layout.simple_spinner_item);
                 ad.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
                 spinner.setAdapter(ad);
-                HashMap<String,Object> dataHashMap = new HashMap();
-                dataHashMap.put("part",spinner);
+                HashMap<String,Object> dataMap = new HashMap();
+                dataMap.put("part",spinner);
 
                 //
                 EditText et = new EditText(this);
@@ -377,7 +384,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                 et.setTextSize(TypedValue.COMPLEX_UNIT_PX,res.getDimension(R.dimen.contentTextSize));
                 et.setHint(res.getString(R.string.mean));
                 et.setHintTextColor(ContextCompat.getColor(this,R.color.lightGray));
-                dataHashMap.put("mean",et);
+                dataMap.put("mean",et);
 
                 linearLayout.addView(spinner);
                 linearLayout.addView(et);
@@ -398,8 +405,8 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                 editText.setHintTextColor(ContextCompat.getColor(this,R.color.lightGray));
                 ArrayList<EditText> edtList = new ArrayList<>();
                 edtList.add(editText);
-                dataHashMap.put("sentence",edtList);
-                dataList.add(dataHashMap);
+                dataMap.put("sentence",edtList);
+                dataList.add(dataMap);
 
                 //
                 ImageView ivAddSen = new ImageView(this);
@@ -432,7 +439,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                     createNewSen(wrapper,edtList);
                 });
                 ivRemove.setOnClickListener(v->{ //cardview區塊的移除
-                    dataList.remove(dataHashMap);
+                    dataList.remove(dataMap);
                     cvArea.removeView(frameLayout);
                 });
                 sv.post(() -> {
@@ -446,6 +453,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
 
         }
     }
+
     private void createNewSen(LinearLayout parentLayout, ArrayList<EditText> arrayList){ //增加例句
         LinearLayout newSection = new LinearLayout(this);
         LinearLayout.LayoutParams newSectionParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);

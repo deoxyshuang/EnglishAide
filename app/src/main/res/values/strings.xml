@@ -14,6 +14,7 @@
     <string name="saveNG">儲存失敗 ERROR:</string>
     <string name="mean">中文解釋</string>
     <string name="example">例句</string>
+    <string name="phr">phr.</string>
     <string-array name="typeList">
         <item>單字</item>
         <item>片語</item>
@@ -32,6 +33,16 @@
         <item>副詞(adv.)</item>
         <item>介系詞(prep.)</item>
         <item>連接詞(conj.)</item>
+    </string-array>
+    <string-array name="partList2">
+        <item>n.</item>
+        <item>v.</item>
+        <item>vt.</item>
+        <item>vi.</item>
+        <item>adj.</item>
+        <item>adv.</item>
+        <item>prep.</item>
+        <item>conj.</item>
     </string-array>
     <integer-array name="partKeyList">
         <item>1</item>

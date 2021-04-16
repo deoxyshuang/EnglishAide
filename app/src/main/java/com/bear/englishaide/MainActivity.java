@@ -2,6 +2,8 @@ package com.bear.englishaide;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.app.TaskStackBuilder;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -10,6 +12,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,6 +28,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int WORD_CARDS = 1;
     private FloatingActionButton fab;
     private WordCardsFragment wordCardsFragment;
     private SearchFragment searchFragment;
@@ -32,27 +36,13 @@ public class MainActivity extends AppCompatActivity {
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
     private BottomNavigationView nav;
-    private DBHelper dbHelper;
-    private SQLiteDatabase db;
-    private Cursor cursor;
     private long firstTime = 0; //使用者首次按下返回鍵的時間
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //建立DB
-        /*dbHelper = new DBHelper(this);
-        db = dbHelper.getReadableDatabase();
-        cursor = db.rawQuery("select 1 from " + DBHelper.TABLE_NAME,null);
-        if (cursor != null) {
-            Log.d("sj","有幾筆資料:" + cursor.getCount());
-            if(cursor.getCount()==0){
-
-                //Toast.makeText(this, "尚無資料!", Toast.LENGTH_SHORT).show();
-            }
-        }*/
+        Log.d("sj", "onCreate: ");
 
         //fragment相關
         wordCardsFragment = new WordCardsFragment();
@@ -66,55 +56,107 @@ public class MainActivity extends AppCompatActivity {
         //懸浮按鈕
         fab = findViewById(R.id.fab);
         fab.setOnClickListener(v->{
-            Intent intent = new Intent();
-            intent.setClass(MainActivity.this, EditWordCardActivity.class);
-            startActivity(intent);
+            Intent intent = new Intent(MainActivity.this, EditWordCardActivity.class);
+            startActivityForResult(intent, WORD_CARDS);
         });
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent();
-//                intent.setClass(MainActivity.this, EditWordCardActivity.class);
-//                startActivity(intent);
-//            }
-//        });
 
         //下方導覽列
         nav = findViewById(R.id.nav);
         nav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                fragmentTransaction = fragmentManager.beginTransaction();
                 switch (item.getItemId()) {
                     case R.id.wordCards:
                         fab.show();
-                        //todo add() + show() + hide() 取代 replace()
-                        //todo fragmentManager.beginTransaction(); fragmentTransaction.commit(); 移位置
-                        fragmentTransaction = fragmentManager.beginTransaction();
-                        /*if(wordCardsFragment.isAdded()){
-
+                        //fragmentTransaction.replace(R.id.containerLayout, wordCardsFragment);
+                        if(searchFragment.isAdded()) fragmentTransaction.hide(searchFragment);
+                        if(quizFragment.isAdded()) fragmentTransaction.hide(quizFragment);
+                        if(wordCardsFragment.isAdded()){
+                            fragmentTransaction.show(wordCardsFragment);
                         }else{
-
-                        }*/
-                        //.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
-                        fragmentTransaction.replace(R.id.containerLayout, wordCardsFragment);
-                        fragmentTransaction.commit();
-                        return true;
+                            fragmentTransaction.add(R.id.containerLayout, wordCardsFragment);
+                        }
+                        break;
                     case R.id.search:
                         fab.hide();
-                        fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.replace(R.id.containerLayout, searchFragment);
-                        fragmentTransaction.commit();
-                        return true;
+                        //fragmentTransaction.replace(R.id.containerLayout, searchFragment);
+                        if(wordCardsFragment.isAdded()) fragmentTransaction.hide(wordCardsFragment);
+                        if(quizFragment.isAdded()) fragmentTransaction.hide(quizFragment);
+                        if(searchFragment.isAdded()){
+                            fragmentTransaction.show(searchFragment);
+                        }else{
+                            fragmentTransaction.add(R.id.containerLayout, searchFragment);
+                        }
+                        break;
                     case R.id.quiz:
                         fab.hide();
-                        fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.replace(R.id.containerLayout, quizFragment);
-                        fragmentTransaction.commit();
-                        return true;
+                        //fragmentTransaction.replace(R.id.containerLayout, quizFragment);
+                        if(wordCardsFragment.isAdded()) fragmentTransaction.hide(wordCardsFragment);
+                        if(searchFragment.isAdded()) fragmentTransaction.hide(searchFragment);
+                        if(quizFragment.isAdded()){
+                            fragmentTransaction.show(quizFragment);
+                        }else{
+                            fragmentTransaction.add(R.id.containerLayout, quizFragment);
+                        }
+                        break;
                 }
-                return false;
+                fragmentTransaction.commit();
+                //.setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                return true;
             }
         });
+
+        /*CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT,CoordinatorLayout.LayoutParams.WRAP_CONTENT);
+        int navH = (int) Utils.convertDpToPx(this,56); //px
+        int fabMargin = (int) getResources().getDimension(R.dimen.fabMargin); //px
+        params.setMargins(0,0,fabMargin,(navH+fabMargin));
+        params.gravity = Gravity.BOTTOM|Gravity.END;
+        //params.setBehavior();
+        fab.setLayoutParams(params);*/
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("sj", "onStart: ");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("sj", "onResume: ");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d("sj", "onPause: ");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("sj", "onStop: ");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("sj", "onDestroy: ");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == WORD_CARDS){
+            if (resultCode == RESULT_OK){
+                Log.d("sj", "onActivityResult: ");
+                wordCardsFragment.dataQuery();
+            }else{
+                //finish();
+            }
+        }
     }
 
     @Override
