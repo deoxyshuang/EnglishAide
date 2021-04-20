@@ -32,13 +32,14 @@ public class FabBehavior extends FloatingActionButton.Behavior {
         //Log.d(TAG, "onNestedScroll dxConsumed=" + dxConsumed + ",dyConsumed=" + dyConsumed);
         if (dyConsumed > 0 && child.getVisibility() == View.VISIBLE) {
             //child.hide();
-            child.hide(new FloatingActionButton.OnVisibilityChangedListener() {
+            /*child.hide(new FloatingActionButton.OnVisibilityChangedListener() {
                 @Override
                 public void onHidden(FloatingActionButton fab) {
                     super.onHidden(fab);
-                    fab.setVisibility(View.INVISIBLE);
+                    //fab.setVisibility(View.INVISIBLE);
                 }
-            });
+            });*/
+            child.setVisibility(View.INVISIBLE);
         } else if (dyConsumed < 0 && child.getVisibility() != View.VISIBLE) {
             child.show();
         }

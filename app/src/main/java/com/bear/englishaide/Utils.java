@@ -12,4 +12,10 @@ public class Utils {
     static public float convertDpToPx(Context context, float dp) {
         return dp * context.getResources().getDisplayMetrics().density;
     }
+    static public int findKeyByVal(int[] ary, int val) {
+        for(int i=0;i<ary.length;i++){
+            if(ary[i]==val) return i;
+        }
+        return -1;
+    }
 }

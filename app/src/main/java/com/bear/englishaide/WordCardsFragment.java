@@ -2,6 +2,7 @@ package com.bear.englishaide;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -26,11 +27,14 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static android.app.Activity.RESULT_OK;
+
 
 public class WordCardsFragment extends Fragment {
 
+    private static final int WORD_CARDS = 1; //todo 與main重複
     private TextView tv;
-    private ImageView iv;
+    private ImageView ivNoData;
     private View mainView;
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
@@ -53,10 +57,20 @@ public class WordCardsFragment extends Fragment {
         Log.d("sj","frag onCreateView");
         mainView = inflater.inflate(R.layout.fragment_wordcards, container, false);
         tv = mainView.findViewById(R.id.tv);
-        iv = mainView.findViewById(R.id.iv);
+        ivNoData = mainView.findViewById(R.id.ivNoData);
         recyclerView = mainView.findViewById(R.id.recyclerView);
         dataQuery();
         return mainView;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == WORD_CARDS){
+            if (resultCode == RESULT_OK){
+                dataQuery();
+            }
+        }
     }
 
     @Override
@@ -139,7 +153,7 @@ public class WordCardsFragment extends Fragment {
                 }
 
                 tv.setVisibility(View.GONE);
-                iv.setVisibility(View.GONE);
+                ivNoData.setVisibility(View.GONE);
                 recyclerView.setHasFixedSize(true); //當我們確定Item的改變不會影響RecyclerView的寬高
                 layoutManager = new LinearLayoutManager(mainView.getContext());
                 recyclerView.setLayoutManager(layoutManager);
@@ -149,7 +163,7 @@ public class WordCardsFragment extends Fragment {
                 recyclerView.setVisibility(View.VISIBLE);
             }else{
                 tv.setVisibility(View.VISIBLE);
-                iv.setVisibility(View.VISIBLE);
+                ivNoData.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.GONE);
                 //Toast.makeText(this, "尚無資料!", Toast.LENGTH_SHORT).show();
             }
@@ -197,10 +211,10 @@ public class WordCardsFragment extends Fragment {
 
             String[] partList2 = getResources().getStringArray(R.array.partList2);
             Mean firstMean = word.meanList.get(0);
-            String part = ((int) map.get("type")==1)?partList2[firstMean.part-1]:getResources().getString(R.string.phr);
+            int type = (int) map.get("type");
+            String part = (type==1)?partList2[firstMean.part-1]:getResources().getString(R.string.phr);
             String mean = firstMean.mean.trim();
             holder.tvWordDesc.setText((!"".equals(mean)?part+" "+mean:""));
-
             holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
@@ -226,6 +240,12 @@ public class WordCardsFragment extends Fragment {
                     return false;
                 }
             });
+            holder.ivEdit.setOnClickListener(v->{
+                Intent intent = new Intent(getContext(), EditWordCardActivity.class);
+                intent.putExtra("type", type);
+                intent.putExtra("wordJson", gson.toJson(word));
+                startActivityForResult(intent, WORD_CARDS);
+            });
         }
 
         @Override
@@ -236,12 +256,14 @@ public class WordCardsFragment extends Fragment {
         class ViewHolder extends RecyclerView.ViewHolder {
 
             public TextView tvWord,tvWordDesc;
+            public ImageView ivEdit;
 
             public ViewHolder(View itemView) {
                 super(itemView); //**這個子類constructor必需呼叫super constructor
 
                 tvWord = itemView.findViewById(R.id.tvWord);
                 tvWordDesc = itemView.findViewById(R.id.tvWordDesc);
+                ivEdit = itemView.findViewById(R.id.ivEdit);
             }
         }
     }
