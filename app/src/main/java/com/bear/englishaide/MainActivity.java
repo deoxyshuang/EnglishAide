@@ -2,34 +2,22 @@ package com.bear.englishaide;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.app.TaskStackBuilder;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
-import java.util.Arrays;
-import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
 
     private static final int WORD_CARDS = 1;
-    private FloatingActionButton fab;
     private WordCardsFragment wordCardsFragment;
     private SearchFragment searchFragment;
     private QuizFragment quizFragment;
@@ -53,13 +41,6 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.add(R.id.containerLayout, wordCardsFragment);
         fragmentTransaction.commit();
 
-        //懸浮按鈕
-        fab = findViewById(R.id.fab);
-        fab.setOnClickListener(v->{
-            Intent intent = new Intent(MainActivity.this, EditWordCardActivity.class);
-            startActivityForResult(intent, WORD_CARDS);
-        });
-
         //下方導覽列
         nav = findViewById(R.id.nav);
         nav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -68,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
                 fragmentTransaction = fragmentManager.beginTransaction();
                 switch (item.getItemId()) {
                     case R.id.wordCards:
-                        fab.show();
                         //fragmentTransaction.replace(R.id.containerLayout, wordCardsFragment);
                         if(searchFragment.isAdded()) fragmentTransaction.hide(searchFragment);
                         if(quizFragment.isAdded()) fragmentTransaction.hide(quizFragment);
@@ -79,7 +59,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case R.id.search:
-                        fab.hide();
                         //fragmentTransaction.replace(R.id.containerLayout, searchFragment);
                         if(wordCardsFragment.isAdded()) fragmentTransaction.hide(wordCardsFragment);
                         if(quizFragment.isAdded()) fragmentTransaction.hide(quizFragment);
@@ -90,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case R.id.quiz:
-                        fab.hide();
                         //fragmentTransaction.replace(R.id.containerLayout, quizFragment);
                         if(wordCardsFragment.isAdded()) fragmentTransaction.hide(wordCardsFragment);
                         if(searchFragment.isAdded()) fragmentTransaction.hide(searchFragment);
@@ -106,14 +84,6 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-
-        /*CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.WRAP_CONTENT,CoordinatorLayout.LayoutParams.WRAP_CONTENT);
-        int navH = (int) Utils.convertDpToPx(this,56); //px
-        int fabMargin = (int) getResources().getDimension(R.dimen.fabMargin); //px
-        params.setMargins(0,0,fabMargin,(navH+fabMargin));
-        params.gravity = Gravity.BOTTOM|Gravity.END;
-        //params.setBehavior();
-        fab.setLayoutParams(params);*/
     }
 
     @Override

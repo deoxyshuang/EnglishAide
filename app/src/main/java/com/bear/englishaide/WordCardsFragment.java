@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import static android.app.Activity.RESULT_OK;
 public class WordCardsFragment extends Fragment {
 
     private static final int WORD_CARDS = 1; //todo 與main重複
+    private FloatingActionButton fab;
     private TextView tv;
     private ImageView ivNoData;
     private View mainView;
@@ -59,6 +61,12 @@ public class WordCardsFragment extends Fragment {
         tv = mainView.findViewById(R.id.tv);
         ivNoData = mainView.findViewById(R.id.ivNoData);
         recyclerView = mainView.findViewById(R.id.recyclerView);
+        //懸浮按鈕
+        fab = mainView.findViewById(R.id.fab);
+        fab.setOnClickListener(v->{
+            Intent intent = new Intent(getContext(), EditWordCardActivity.class);
+            startActivityForResult(intent, WORD_CARDS);
+        });
         dataQuery();
         return mainView;
     }

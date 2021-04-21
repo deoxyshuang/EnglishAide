@@ -20,31 +20,45 @@
         android:clipToPadding="false">
 
         <androidx.cardview.widget.CardView
-        android:id="@+id/cv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="15dp"
-        app:cardElevation="4dp"
-        android:padding="10dp">
-            <LinearLayout
+            android:id="@+id/cv"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:orientation="vertical"
-            android:paddingTop="16dp"
-            android:paddingBottom="16dp">
-            <TextView
-                android:id="@+id/tvWord"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="22sp" />
-            <TextView
-                android:id="@+id/tvWordDesc"
-                android:layout_marginTop="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="15sp" />
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="15dp"
+            app:cardElevation="4dp"
+            android:padding="10dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingTop="18dp"
+                    android:paddingBottom="18dp"
+                    android:background="@color/lightBlue2">
+                    <TextView
+                        android:id="@+id/tvWord"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="23sp" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp"
+                    android:background="@color/white">
+                    <TextView
+                        android:id="@+id/tvWordDesc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="15sp" />
+                </LinearLayout>
+            </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <ImageView

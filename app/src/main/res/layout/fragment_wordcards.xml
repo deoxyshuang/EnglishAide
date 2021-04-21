@@ -6,6 +6,47 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/lightBlue"
+                app:titleTextColor="@color/white"
+                android:elevation="@dimen/fabMargin"
+                app:layout_scrollFlags="scroll|enterAlways">
+            </androidx.appcompat.widget.Toolbar>
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        </androidx.recyclerview.widget.RecyclerView>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/fabMargin"
+            android:layout_marginBottom="@dimen/fabMargin"
+            android:layout_gravity="bottom|end"
+            app:backgroundTint="@color/lightBlue"
+            app:rippleColor="@color/lightBlue2"
+            app:tint="@color/white"
+            app:srcCompat="@drawable/ic_round_add_24"
+            app:layout_behavior=".FabBehavior"/>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <!--todo 測試沒資料的狀況-->
     <ImageView
         android:id="@+id/ivNoData"
         android:layout_width="wrap_content"
@@ -16,7 +57,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintVertical_bias="0.2" />
+        app:layout_constraintVertical_bias="0.2"/>
 
     <TextView
         android:id="@+id/tv"
@@ -29,14 +70,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintVertical_bias="0.7"
-        />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </androidx.recyclerview.widget.RecyclerView>
+        app:layout_constraintVertical_bias="0.7" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
