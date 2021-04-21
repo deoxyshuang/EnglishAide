@@ -21,9 +21,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
-
 
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.snackbar.Snackbar;
@@ -31,8 +28,8 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.IntStream;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -133,12 +130,12 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                 else spnPart.setSelection(0);
                 edtMean.setText(mean.mean);
                 edtSentence.setText(mean.sentenceList.get(0).eng);
-                for (int i = 1; i < mean.sentenceList.size(); i++) {
+                IntStream.range(1,mean.sentenceList.size()).forEach(i -> {
                     createNewSen(cvSection, firstSenList, mean.sentenceList.get(i).eng);
-                }
-                for (int i = 1; i < meanList.size(); i++) {
+                });
+                IntStream.range(1,meanList.size()).forEach(i -> {
                     createNewMean(meanList.get(i));
-                }
+                });
             }else{
                 spnType.setSelection(0);
             }
@@ -190,24 +187,24 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                     word.fami = famiKeyList[spnFami.getSelectedItemPosition()];
                     word.word = edtWord.getText().toString();
 
-                    for(int i=0;i<dataList.size();i++){
+                    dataList.forEach(hashMap->{
                         Mean mean = new Mean();
-                        Spinner p = (Spinner) dataList.get(i).get("part");
+                        Spinner p = (Spinner) hashMap.get("part");
                         mean.part = partKeyList[p.getSelectedItemPosition()];
-                        EditText m = (EditText) dataList.get(i).get("mean");
+                        EditText m = (EditText) hashMap.get("mean");
                         mean.mean = m.getText().toString();
 
-                        ArrayList<EditText> senList = (ArrayList<EditText>) dataList.get(i).get("sentence");
+                        ArrayList<EditText> senList = (ArrayList<EditText>) hashMap.get("sentence");
                         mean.sentenceListInit();
-                        for(int j=0;j<senList.size();j++){
+                        senList.forEach(editText -> {
                             Sentence sentence = new Sentence();
-                            sentence.eng = senList.get(j).getText().toString();
+                            sentence.eng = editText.getText().toString();
 
                             mean.sentenceList.add(sentence);
-                        }
+                        });
                         //Log.d("sj","mean:" + gson.toJson(mean)); //{"mean":"","part":1,"sentenceList":[{"eng":""}]}
                         word.meanList.add(mean);
-                    }
+                    });
 
                     String json = gson.toJson(word);
                     Log.d("sj","obj->json:" + json);
@@ -238,7 +235,6 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                     Snackbar.make(viewPos, res.getString(R.string.alertMsg), Snackbar.LENGTH_SHORT)
                             .show();
                 }
-
                 break;
 
             case R.id.ivAdd:
@@ -379,10 +375,10 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
         edtMean.setText(mean.mean);
         LinearLayout linearLayout = (LinearLayout) hashMap.get("wrapper");
         ArrayList<EditText> edtList = (ArrayList<EditText>) hashMap.get("sentence");
-        for (int i = 0; i < mean.sentenceList.size(); i++) {
+        IntStream.range(0,mean.sentenceList.size()).forEach(i->{
             if(i>0) createNewSen(linearLayout,edtList);
             edtList.get(i).setText(mean.sentenceList.get(i).eng);
-        }
+        });
     }
     /**
      * 增加例句
