@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == WORD_CARDS){
             if (resultCode == RESULT_OK){
                 Log.d("sj", "onActivityResult: ");
-                wordCardsFragment.dataQuery();
+                wordCardsFragment.dataQuery(null);
             }else{
                 //finish();
             }
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) { //todo 檢查問題
             long secondTime = System.currentTimeMillis();
             if (secondTime - firstTime > 2000) {
                 Toast.makeText(MainActivity.this, R.string.exitMsg, Toast.LENGTH_SHORT).show();

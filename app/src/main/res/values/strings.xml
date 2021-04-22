@@ -24,6 +24,15 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+    <string-array name="typeList2">
+        <item>全部</item>
+        <item>單字</item>
+        <item>片語</item>
+    </string-array>
+    <string-array name="sortList">
+        <item>預設排序</item>
+        <item>A-Z</item>
+    </string-array>
     <string name="partOfspeech">詞性</string>
     <string-array name="partList">
         <item>名詞(n.)</item>

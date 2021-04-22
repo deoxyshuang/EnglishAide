@@ -10,6 +10,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -19,7 +21,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -33,12 +39,15 @@ import static android.app.Activity.RESULT_OK;
 
 public class WordCardsFragment extends Fragment {
 
+    private static final String TAG = WordCardsFragment.class.getSimpleName();
     private static final int WORD_CARDS = 1; //todo 與main重複
+    private Context context;
     private FloatingActionButton fab;
     private TextView tv;
     private ImageView ivNoData;
+    private Spinner spnType,spnSort;
     private View mainView;
-    private RecyclerView recyclerView;
+    private RecyclerView recyclerView; //todo 動畫效果
     private RecyclerView.LayoutManager layoutManager;
     private Gson gson = new Gson();
     private ArrayList<HashMap> wordList=new ArrayList();
@@ -46,6 +55,13 @@ public class WordCardsFragment extends Fragment {
     private DBHelper dbHelper;
     private Cursor cursor;
     private MyAdapter myAdapter;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        Log.d("sj","frag onAttach");
+        this.context = context;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,10 +80,50 @@ public class WordCardsFragment extends Fragment {
         //懸浮按鈕
         fab = mainView.findViewById(R.id.fab);
         fab.setOnClickListener(v->{
-            Intent intent = new Intent(getContext(), EditWordCardActivity.class);
+            Intent intent = new Intent(context, EditWordCardActivity.class);
             startActivityForResult(intent, WORD_CARDS);
         });
-        dataQuery();
+        //
+        Toolbar toolbar = mainView.findViewById(R.id.toolbar);
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+
+        spnType = mainView.findViewById(R.id.spnType);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
+                R.array.typeList2,
+                android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
+        spnType.setAdapter(adapter);
+
+        spnSort = mainView.findViewById(R.id.spnSort);
+        ArrayAdapter<CharSequence> adapter2 = ArrayAdapter.createFromResource(getContext(),
+                R.array.sortList,
+                android.R.layout.simple_spinner_item);
+        adapter2.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
+        spnSort.setAdapter(adapter2);
+
+        dataQuery(null);
+
+        //字卡類型監聽事件(單字/片語)
+        spnType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                switch (i){
+                    case 1: //單字
+                        dataQuery(1);
+                        break;
+                    case 2: //片語
+                        dataQuery(2);
+                        break;
+                    default: //全部
+                        dataQuery(null);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
         return mainView;
     }
 
@@ -76,15 +132,9 @@ public class WordCardsFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == WORD_CARDS){
             if (resultCode == RESULT_OK){
-                dataQuery();
+                dataQuery(null);
             }
         }
-    }
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        Log.d("sj","frag onAttach");
     }
 
     @Override
@@ -140,13 +190,18 @@ public class WordCardsFragment extends Fragment {
         super.onDetach();
         Log.d("sj","frag onDetach");
     }
-
-    void dataQuery(){ //字卡查詢
+    void dataQuery(Integer type){ //字卡查詢
         wordList.clear();
 
-        dbHelper = new DBHelper(mainView.getContext());
+        dbHelper = new DBHelper(context);
         db = dbHelper.getReadableDatabase();
-        cursor = db.rawQuery("select * from " + DBHelper.TABLE_NAME,null);
+        String[] param=null;
+        String sqlWhere="";
+        if(type!=null && type>0) {
+            sqlWhere = " where type=? ";
+            param = new String[]{String.valueOf(type)};
+        }
+        cursor = db.rawQuery("select * from " + DBHelper.TABLE_NAME +sqlWhere,param);
         if (cursor != null) {
             Log.d("sj","有幾筆資料:" + cursor.getCount());
             if(cursor.getCount()>0){
@@ -163,11 +218,11 @@ public class WordCardsFragment extends Fragment {
                 tv.setVisibility(View.GONE);
                 ivNoData.setVisibility(View.GONE);
                 recyclerView.setHasFixedSize(true); //當我們確定Item的改變不會影響RecyclerView的寬高
-                layoutManager = new LinearLayoutManager(mainView.getContext());
+                layoutManager = new LinearLayoutManager(context);
                 recyclerView.setLayoutManager(layoutManager);
-                myAdapter = new MyAdapter(mainView.getContext(),wordList);
+                myAdapter = new MyAdapter(context,wordList);
                 recyclerView.setAdapter(myAdapter);
-                recyclerView.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.bgGray));
+                recyclerView.setBackgroundColor(ContextCompat.getColor(context, R.color.bgGray));
                 recyclerView.setVisibility(View.VISIBLE);
             }else{
                 tv.setVisibility(View.VISIBLE);
@@ -249,7 +304,7 @@ public class WordCardsFragment extends Fragment {
                 }
             });
             holder.ivEdit.setOnClickListener(v->{
-                Intent intent = new Intent(getContext(), EditWordCardActivity.class);
+                Intent intent = new Intent(mContext, EditWordCardActivity.class);
                 intent.putExtra("type", type);
                 intent.putExtra("wordJson", gson.toJson(word));
                 startActivityForResult(intent, WORD_CARDS);
