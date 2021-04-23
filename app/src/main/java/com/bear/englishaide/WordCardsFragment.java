@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -301,25 +303,7 @@ public class WordCardsFragment extends Fragment {
             holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                    builder.setMessage(getResources().getString(R.string.delConfirm, word.word));
-                    builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            db.delete(DBHelper.TABLE_NAME,"id = " + word.id,null);
-                            wordList.remove(position);
-                            notifyDataSetChanged();
-                        }
-                    });
-                    builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int id) {
-
-                        }
-                    });
-                    AlertDialog dialog = builder.create();
-                    dialog.show();
-
-
+                    showDelDialog(word,position);
                     return false;
                 }
             });
@@ -348,10 +332,10 @@ public class WordCardsFragment extends Fragment {
 //                });
 //                popup.show();
 
-                initPopupWindow(holder.ivMore,type,word);
+                initPopupWindow(holder.ivMore,type,word,position);
             });
         }
-        private PopupWindow initPopupWindow(View view,int type, Word word) {
+        private PopupWindow initPopupWindow(View view,int type, Word word,int position) { //todo 參數待整理
 
             PopupWindow mDropdown = null;
 
@@ -370,7 +354,7 @@ public class WordCardsFragment extends Fragment {
                     startActivityForResult(intent, WORD_CARDS);
                 });
                 tvDel.setOnClickListener(v->{
-
+                    showDelDialog(word,position);
                 });
 
                 mDropdown.showAsDropDown(view);
@@ -379,6 +363,25 @@ public class WordCardsFragment extends Fragment {
                 e.printStackTrace();
             }
             return mDropdown;
+        }
+        private void showDelDialog(Word word, int position){
+            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+            builder.setMessage(getResources().getString(R.string.delConfirm, word.word));
+            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    db.delete(DBHelper.TABLE_NAME,"id = " + word.id,null);
+                    wordList.remove(position);
+                    notifyDataSetChanged();
+                }
+            });
+            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int id) {
+
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
 
         @Override
