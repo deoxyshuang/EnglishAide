@@ -116,7 +116,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
         int type = intent.getIntExtra("type",-1);
         Log.d("sj", "wordJson:"+wordJson);
         if(wordJson!=null){ //編輯字卡
-            toolbar.setTitle(R.string.edit);
+            toolbar.setTitle(R.string.editWordCard);
             word = gson.fromJson(wordJson,Word.class);
             meanList = word.meanList;
 

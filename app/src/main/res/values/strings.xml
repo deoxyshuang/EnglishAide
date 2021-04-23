@@ -5,12 +5,15 @@
     <string name="search">字卡搜尋</string>
     <string name="quiz">隨機抽考</string>
     <string name="create">新增字卡</string>
-    <string name="edit">編輯字卡</string>
-    <string name="exitMsg">再按一次退出應用程式</string>
+    <string name="editWordCard">編輯字卡</string>
+    <string name="edit">編輯</string>
+    <string name="exitMsg">再按一次返回鍵離開</string>
     <string name="alertMsg">字卡不可為空</string>
     <string name="ok">確定</string>
     <string name="cancel">取消</string>
     <string name="save">儲存</string>
+    <string name="delete">刪除</string>
+    <string name="delConfirm">確定要刪除字卡【 %1$s 】嗎？</string>
     <string name="saveOK">儲存成功</string>
     <string name="saveNG">儲存失敗 ERROR:</string>
     <string name="mean">中文解釋</string>

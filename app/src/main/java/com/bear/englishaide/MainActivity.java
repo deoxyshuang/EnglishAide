@@ -131,12 +131,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) { //todo 檢查問題
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
             long secondTime = System.currentTimeMillis();
-            if (secondTime - firstTime > 2000) {
+            if (secondTime - firstTime > Long.valueOf(2000)) {
                 Toast.makeText(MainActivity.this, R.string.exitMsg, Toast.LENGTH_SHORT).show();
-                //Snackbar.make(nav,  R.string.exitMsg, Snackbar.LENGTH_SHORT).show();
                 firstTime = secondTime;
+                return true;
             } else {
                 finish();
             }

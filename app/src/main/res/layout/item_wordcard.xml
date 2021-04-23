@@ -19,6 +19,16 @@
         android:padding="5dp"
         android:clipToPadding="false">
 
+        <ImageView
+            android:id="@+id/ivStar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_round_star_26"
+            android:clickable="true"
+            android:layout_gravity="start|top"
+            android:layout_margin="5dp"
+            android:elevation="7dp"/>
+
         <androidx.cardview.widget.CardView
             android:id="@+id/cv"
             android:layout_width="match_parent"
@@ -62,13 +72,13 @@
         </androidx.cardview.widget.CardView>
 
         <ImageView
-            android:id="@+id/ivEdit"
+            android:id="@+id/ivMore"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/selector_iv_edit"
+            android:src="@drawable/selector_iv_more"
+            android:clickable="true"
             android:layout_gravity="end|top"
             android:layout_margin="5dp"
-            android:elevation="7dp"
-            android:clickable="true"/>
+            android:elevation="7dp"/>
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -24,7 +24,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -85,6 +85,7 @@ public class WordCardsFragment extends Fragment {
         });
         //
         Toolbar toolbar = mainView.findViewById(R.id.toolbar);
+        //AppCompatActivity activity = (AppCompatActivity) getActivity();
         ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
         ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
 
@@ -124,6 +125,25 @@ public class WordCardsFragment extends Fragment {
             public void onNothingSelected(AdapterView<?> adapterView) {
             }
         });
+
+        //字卡排序監聽事件
+        spnSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                switch (i){
+                    case 1:
+                        break;
+                    case 2:
+                        break;
+                    default: //預設
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+
         return mainView;
     }
 
@@ -282,7 +302,7 @@ public class WordCardsFragment extends Fragment {
                 @Override
                 public boolean onLongClick(View view) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                    builder.setMessage("確定要刪除字卡【"+word.word+"】嗎？");
+                    builder.setMessage(getResources().getString(R.string.delConfirm, word.word));
                     builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             db.delete(DBHelper.TABLE_NAME,"id = " + word.id,null);
@@ -303,12 +323,62 @@ public class WordCardsFragment extends Fragment {
                     return false;
                 }
             });
-            holder.ivEdit.setOnClickListener(v->{
-                Intent intent = new Intent(mContext, EditWordCardActivity.class);
-                intent.putExtra("type", type);
-                intent.putExtra("wordJson", gson.toJson(word));
-                startActivityForResult(intent, WORD_CARDS);
+            holder.ivMore.setOnClickListener(v->{
+//                Intent intent = new Intent(mContext, EditWordCardActivity.class);
+//                intent.putExtra("type", type);
+//                intent.putExtra("wordJson", gson.toJson(word));
+//                startActivityForResult(intent, WORD_CARDS);
+
+//                PopupMenu popup = new PopupMenu(mContext, v);
+//                popup.getMenuInflater().inflate(R.menu.word_card_menu, popup.getMenu());
+//                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+//                    @Override
+//                    public boolean onMenuItemClick(MenuItem item) {
+//                        switch (item.getItemId()) {
+//                            /*case R.id.action_first:
+//                                Toast.makeText(mContext, "Action 1", Toast.LENGTH_SHORT).show();
+//                                return true;
+//                            case R.id.action_second:
+//                                Toast.makeText(mContext, "Action 2", Toast.LENGTH_SHORT).show();
+//                                return true;*/
+//                            default:
+//                        }
+//                        return false;
+//                    }
+//                });
+//                popup.show();
+
+                initPopupWindow(holder.ivMore,type,word);
             });
+        }
+        private PopupWindow initPopupWindow(View view,int type, Word word) {
+
+            PopupWindow mDropdown = null;
+
+            try {
+                View layout = LayoutInflater.from(context).inflate(R.layout.word_card_popup_window, null);
+                mDropdown = new PopupWindow(layout);
+                mDropdown = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,true);
+
+                TextView tvEdit = layout.findViewById(R.id.tvEdit);
+                TextView tvDel = layout.findViewById(R.id.tvDel);
+                tvEdit.setOnClickListener(v->{
+                    Intent intent = new Intent(mContext, EditWordCardActivity.class);
+                    intent.putExtra("type", type);
+                    intent.putExtra("wordJson", gson.toJson(word));
+                    startActivityForResult(intent, WORD_CARDS);
+                });
+                tvDel.setOnClickListener(v->{
+
+                });
+
+                mDropdown.showAsDropDown(view);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return mDropdown;
         }
 
         @Override
@@ -319,14 +389,14 @@ public class WordCardsFragment extends Fragment {
         class ViewHolder extends RecyclerView.ViewHolder {
 
             public TextView tvWord,tvWordDesc;
-            public ImageView ivEdit;
+            public ImageView ivMore;
 
             public ViewHolder(View itemView) {
                 super(itemView); //**這個子類constructor必需呼叫super constructor
 
                 tvWord = itemView.findViewById(R.id.tvWord);
                 tvWordDesc = itemView.findViewById(R.id.tvWordDesc);
-                ivEdit = itemView.findViewById(R.id.ivEdit);
+                ivMore = itemView.findViewById(R.id.ivMore);
             }
         }
     }

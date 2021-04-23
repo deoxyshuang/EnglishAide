@@ -9,7 +9,7 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="?attr/actionBarSize"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -143,6 +143,7 @@
                                         android:textSize="@dimen/contentTextSize"
                                         android:hint="@string/example"
                                         android:textColorHint="@color/lightGray"/>
+                                <!--todo selector效果-->
                                     <ImageView
                                         android:id="@+id/ivAddSen"
                                         android:layout_width="wrap_content"
