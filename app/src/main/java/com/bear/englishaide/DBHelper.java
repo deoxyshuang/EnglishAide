@@ -22,7 +22,8 @@ public class DBHelper extends SQLiteOpenHelper {
         final String SQL = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "( " +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "type INTEGER, " +
-                "data TEXT" +
+                "data TEXT, " +
+                "createTime INTEGER" +
                 ");";
         db.execSQL(SQL);
     }

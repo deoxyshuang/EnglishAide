@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">英文小幫手</string>
+    <string name="app_name_en">EnglishAide</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="wordCards">字卡列表</string>
     <string name="search">字卡搜尋</string>
@@ -23,18 +24,16 @@
         <item>單字</item>
         <item>片語</item>
     </string-array>
-    <string-array name="typeKeyList">
-        <item>1</item>
-        <item>2</item>
-    </string-array>
     <string-array name="typeList2">
         <item>全部</item>
         <item>單字</item>
         <item>片語</item>
     </string-array>
     <string-array name="sortList">
-        <item>預設排序</item>
-        <item>A-Z</item>
+        <item>建立時間 新 → 舊</item>
+        <item>建立時間 舊 → 新</item>
+        <item>A → Z</item>
+        <item>Z → A</item>
     </string-array>
     <string name="partOfspeech">詞性</string>
     <string-array name="partList">

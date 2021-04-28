@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -17,7 +16,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int WORD_CARDS = 1;
     private WordCardsFragment wordCardsFragment;
     private SearchFragment searchFragment;
     private QuizFragment quizFragment;
@@ -117,23 +115,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == WORD_CARDS){
-            if (resultCode == RESULT_OK){
-                Log.d("sj", "onActivityResult: ");
-                wordCardsFragment.dataQuery(null);
-            }else{
-                //finish();
-            }
-        }
-    }
-
-    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             long secondTime = System.currentTimeMillis();
-            if (secondTime - firstTime > Long.valueOf(2000)) {
+            if (secondTime - firstTime > 2000) {
                 Toast.makeText(MainActivity.this, R.string.exitMsg, Toast.LENGTH_SHORT).show();
                 firstTime = secondTime;
                 return true;

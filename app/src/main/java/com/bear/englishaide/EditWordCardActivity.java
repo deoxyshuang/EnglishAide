@@ -126,7 +126,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
             if(type>-1){
                 spnType.setSelection(type-1);
                 Mean mean = meanList.get(0);
-                if(type==1) spnPart.setSelection(mean.part-1); //單字詞性
+                if(type==VocabType.WORD.getKey()) spnPart.setSelection(mean.part-1); //單字詞性
                 else spnPart.setSelection(0);
                 edtMean.setText(mean.mean);
                 edtSentence.setText(mean.sentenceList.get(0).eng);
@@ -217,6 +217,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                         ContentValues values = new ContentValues();
                         values.put("type", spnType.getSelectedItemPosition()+1);
                         values.put("data", json);
+                        values.put("createTime", System.currentTimeMillis());
                         if(wordJson==null) db.insertOrThrow(DBHelper.TABLE_NAME, null, values);
                         else db.update(DBHelper.TABLE_NAME, values, " id = "+word.id,null);
                         msg=res.getString(R.string.saveOK);

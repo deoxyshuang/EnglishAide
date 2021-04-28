@@ -3,6 +3,8 @@ package com.bear.englishaide;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -35,15 +37,19 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.Context.MODE_PRIVATE;
 
 
 public class WordCardsFragment extends Fragment {
 
     private static final String TAG = WordCardsFragment.class.getSimpleName();
-    private static final int WORD_CARDS = 1; //todo 與main重複
+    private static final int WORD_CARDS = 1;
     private Context context;
+    private Resources res;
+    private SharedPreferences pref;
     private FloatingActionButton fab;
     private TextView tv;
     private ImageView ivNoData;
@@ -63,12 +69,14 @@ public class WordCardsFragment extends Fragment {
         super.onAttach(context);
         Log.d("sj","frag onAttach");
         this.context = context;
+        res = getResources();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("sj","frag onCreate");
+        pref = context.getSharedPreferences(res.getString(R.string.app_name_en), MODE_PRIVATE);
     }
 
     @Override
@@ -87,9 +95,9 @@ public class WordCardsFragment extends Fragment {
         });
         //
         Toolbar toolbar = mainView.findViewById(R.id.toolbar);
-        //AppCompatActivity activity = (AppCompatActivity) getActivity();
-        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity.setSupportActionBar(toolbar);
+        activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         spnType = mainView.findViewById(R.id.spnType);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
@@ -105,22 +113,19 @@ public class WordCardsFragment extends Fragment {
         adapter2.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
         spnSort.setAdapter(adapter2);
 
-        dataQuery(null);
+        int vocabType = pref.getInt("vocabType", 0);
+        int sortType = pref.getInt("sortType", 0);
+        spnType.setSelection(vocabType);
+        spnSort.setSelection(sortType);
+//        Log.d(TAG, "onCreateView: vocabType="+vocabType+",,sortType="+sortType);
+        dataQuery(VocabType.getType(vocabType), SortType.getType(sortType));
 
         //字卡類型監聽事件(單字/片語)
         spnType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                switch (i){
-                    case 1: //單字
-                        dataQuery(1);
-                        break;
-                    case 2: //片語
-                        dataQuery(2);
-                        break;
-                    default: //全部
-                        dataQuery(null);
-                }
+                dataQuery(VocabType.getType(i), SortType.getType(spnSort.getSelectedItemPosition()));
+                pref.edit().putInt("vocabType", i).commit();
             }
 
             @Override
@@ -132,13 +137,8 @@ public class WordCardsFragment extends Fragment {
         spnSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                switch (i){
-                    case 1:
-                        break;
-                    case 2:
-                        break;
-                    default: //預設
-                }
+                dataQuery(VocabType.getType(spnType.getSelectedItemPosition()), SortType.getType(i));
+                pref.edit().putInt("sortType", i).commit();
             }
 
             @Override
@@ -154,7 +154,8 @@ public class WordCardsFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == WORD_CARDS){
             if (resultCode == RESULT_OK){
-                dataQuery(null);
+                dataQuery(VocabType.getType(spnType.getSelectedItemPosition()),
+                        SortType.getType(spnSort.getSelectedItemPosition()));
             }
         }
     }
@@ -212,18 +213,26 @@ public class WordCardsFragment extends Fragment {
         super.onDetach();
         Log.d("sj","frag onDetach");
     }
-    void dataQuery(Integer type){ //字卡查詢
+    void dataQuery(VocabType vocabType, SortType sortType){ //字卡查詢
         wordList.clear();
 
         dbHelper = new DBHelper(context);
         db = dbHelper.getReadableDatabase();
         String[] param=null;
-        String sqlWhere="";
-        if(type!=null && type>0) {
+        String sqlWhere="", sqlOrder="";
+        if(vocabType!=VocabType.ALL) {
             sqlWhere = " where type=? ";
-            param = new String[]{String.valueOf(type)};
+            param = new String[]{String.valueOf(vocabType.getKey())};
         }
-        cursor = db.rawQuery("select * from " + DBHelper.TABLE_NAME +sqlWhere,param);
+        switch (sortType){
+            case NEW_TO_OLD:
+                sqlOrder = " order by createTime desc ";
+                break;
+            case OLD_TO_NEW:
+                sqlOrder = " order by createTime";
+                break;
+        }
+        cursor = db.rawQuery("select * from " + DBHelper.TABLE_NAME +sqlWhere + sqlOrder,param);
         if (cursor != null) {
             Log.d("sj","有幾筆資料:" + cursor.getCount());
             if(cursor.getCount()>0){
@@ -236,7 +245,22 @@ public class WordCardsFragment extends Fragment {
                     wordMap.put("type",cursor.getInt(1)); //1=單字 2=片語
                     wordList.add(wordMap);
                 }
-
+                switch (sortType){
+                    case A_TO_Z:
+                        wordList = (ArrayList<HashMap>) wordList.stream().sorted((map1, map2)->{
+                            Word w1 = (Word) map1.get("word");
+                            Word w2 = (Word) map2.get("word");
+                            return w1.word.compareTo(w2.word);
+                        }).collect(Collectors.toList());
+                        break;
+                    case Z_TO_A:
+                        wordList = (ArrayList<HashMap>) wordList.stream().sorted((map1, map2)->{
+                            Word w1 = (Word) map1.get("word");
+                            Word w2 = (Word) map2.get("word");
+                            return w2.word.compareTo(w1.word);
+                        }).collect(Collectors.toList());
+                        break;
+                }
                 tv.setVisibility(View.GONE);
                 ivNoData.setVisibility(View.GONE);
                 recyclerView.setHasFixedSize(true); //當我們確定Item的改變不會影響RecyclerView的寬高
@@ -294,10 +318,10 @@ public class WordCardsFragment extends Fragment {
             Word word = (Word) map.get("word");
             holder.tvWord.setText(word.word);
 
-            String[] partList2 = getResources().getStringArray(R.array.partList2);
+            String[] partList2 = res.getStringArray(R.array.partList2);
             Mean firstMean = word.meanList.get(0);
             int type = (int) map.get("type");
-            String part = (type==1)?partList2[firstMean.part-1]:getResources().getString(R.string.phr);
+            String part = (type==1)?partList2[firstMean.part-1]:res.getString(R.string.phr);
             String mean = firstMean.mean.trim();
             holder.tvWordDesc.setText((!"".equals(mean)?part+" "+mean:""));
             holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -366,7 +390,7 @@ public class WordCardsFragment extends Fragment {
         }
         private void showDelDialog(Word word, int position){
             AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-            builder.setMessage(getResources().getString(R.string.delConfirm, word.word));
+            builder.setMessage(res.getString(R.string.delConfirm, word.word));
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     db.delete(DBHelper.TABLE_NAME,"id = " + word.id,null);
