@@ -5,8 +5,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -37,13 +35,12 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.stream.Collectors;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 
 
-public class WordCardsFragment extends Fragment {
+public class WordCardsFragment extends Fragment implements DBOperation.IDBOListener {
 
     private static final String TAG = WordCardsFragment.class.getSimpleName();
     private static final int WORD_CARDS = 1;
@@ -56,13 +53,9 @@ public class WordCardsFragment extends Fragment {
     private Spinner spnType,spnSort;
     private View mainView;
     private RecyclerView recyclerView; //todo 動畫效果
-    private RecyclerView.LayoutManager layoutManager;
     private Gson gson = new Gson();
-    private ArrayList<HashMap> wordList=new ArrayList();
-    private SQLiteDatabase db;
-    private DBHelper dbHelper;
-    private Cursor cursor;
     private MyAdapter myAdapter;
+    private DBOperation dbo;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -77,6 +70,8 @@ public class WordCardsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Log.d("sj","frag onCreate");
         pref = context.getSharedPreferences(res.getString(R.string.app_name_en), MODE_PRIVATE);
+        dbo = new DBOperation(context);
+        dbo.setIDBOListener(this);
     }
 
     @Override
@@ -117,14 +112,12 @@ public class WordCardsFragment extends Fragment {
         int sortType = pref.getInt("sortType", 0);
         spnType.setSelection(vocabType);
         spnSort.setSelection(sortType);
-//        Log.d(TAG, "onCreateView: vocabType="+vocabType+",,sortType="+sortType);
-        dataQuery(VocabType.getType(vocabType), SortType.getType(sortType));
 
         //字卡類型監聽事件(單字/片語)
         spnType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                dataQuery(VocabType.getType(i), SortType.getType(spnSort.getSelectedItemPosition()));
+                dbo.dataQuery(VocabType.getType(i), SortType.getType(spnSort.getSelectedItemPosition()));
                 pref.edit().putInt("vocabType", i).commit();
             }
 
@@ -137,7 +130,7 @@ public class WordCardsFragment extends Fragment {
         spnSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                dataQuery(VocabType.getType(spnType.getSelectedItemPosition()), SortType.getType(i));
+                dbo.dataQuery(VocabType.getType(spnType.getSelectedItemPosition()), SortType.getType(i));
                 pref.edit().putInt("sortType", i).commit();
             }
 
@@ -154,7 +147,7 @@ public class WordCardsFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == WORD_CARDS){
             if (resultCode == RESULT_OK){
-                dataQuery(VocabType.getType(spnType.getSelectedItemPosition()),
+                dbo.dataQuery(VocabType.getType(spnType.getSelectedItemPosition()),
                         SortType.getType(spnSort.getSelectedItemPosition()));
             }
         }
@@ -213,78 +206,29 @@ public class WordCardsFragment extends Fragment {
         super.onDetach();
         Log.d("sj","frag onDetach");
     }
-    void dataQuery(VocabType vocabType, SortType sortType){ //字卡查詢
-        wordList.clear();
-
-        dbHelper = new DBHelper(context);
-        db = dbHelper.getReadableDatabase();
-        String[] param=null;
-        String sqlWhere="", sqlOrder="";
-        if(vocabType!=VocabType.ALL) {
-            sqlWhere = " where type=? ";
-            param = new String[]{String.valueOf(vocabType.getKey())};
-        }
-        switch (sortType){
-            case NEW_TO_OLD:
-                sqlOrder = " order by createTime desc ";
-                break;
-            case OLD_TO_NEW:
-                sqlOrder = " order by createTime";
-                break;
-        }
-        cursor = db.rawQuery("select * from " + DBHelper.TABLE_NAME +sqlWhere + sqlOrder,param);
-        if (cursor != null) {
-            Log.d("sj","有幾筆資料:" + cursor.getCount());
-            if(cursor.getCount()>0){
-                while (cursor.moveToNext()) {
-                    Word word = gson.fromJson(cursor.getString(2), Word.class);
-                    word.id = cursor.getInt(0);
-
-                    HashMap<String,Object> wordMap = new HashMap();
-                    wordMap.put("word",word);
-                    wordMap.put("type",cursor.getInt(1)); //1=單字 2=片語
-                    wordList.add(wordMap);
-                }
-                switch (sortType){
-                    case A_TO_Z:
-                        wordList = (ArrayList<HashMap>) wordList.stream().sorted((map1, map2)->{
-                            Word w1 = (Word) map1.get("word");
-                            Word w2 = (Word) map2.get("word");
-                            return w1.word.compareTo(w2.word);
-                        }).collect(Collectors.toList());
-                        break;
-                    case Z_TO_A:
-                        wordList = (ArrayList<HashMap>) wordList.stream().sorted((map1, map2)->{
-                            Word w1 = (Word) map1.get("word");
-                            Word w2 = (Word) map2.get("word");
-                            return w2.word.compareTo(w1.word);
-                        }).collect(Collectors.toList());
-                        break;
-                }
-                tv.setVisibility(View.GONE);
-                ivNoData.setVisibility(View.GONE);
-                recyclerView.setHasFixedSize(true); //當我們確定Item的改變不會影響RecyclerView的寬高
-                layoutManager = new LinearLayoutManager(context);
-                recyclerView.setLayoutManager(layoutManager);
-                myAdapter = new MyAdapter(context,wordList);
-                recyclerView.setAdapter(myAdapter);
-                recyclerView.setBackgroundColor(ContextCompat.getColor(context, R.color.bgGray));
-                recyclerView.setVisibility(View.VISIBLE);
-            }else{
-                tv.setVisibility(View.VISIBLE);
-                ivNoData.setVisibility(View.VISIBLE);
-                recyclerView.setVisibility(View.GONE);
-                //Toast.makeText(this, "尚無資料!", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(!cursor.isClosed()) cursor.close();
-        if(!db.isOpen()) db.close();
-        if(dbHelper!=null) dbHelper.close();
+        dbo.destroy();
+    }
+
+    @Override
+    public void onQueryComplete(ArrayList wordList) {
+        if(wordList.size()>0){
+            tv.setVisibility(View.GONE);
+            ivNoData.setVisibility(View.GONE);
+            recyclerView.setHasFixedSize(true); //當我們確定Item的改變不會影響RecyclerView的寬高
+            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+            myAdapter = new MyAdapter(context,wordList);
+            recyclerView.setAdapter(myAdapter);
+            recyclerView.setBackgroundColor(ContextCompat.getColor(context, R.color.bgGray));
+            recyclerView.setVisibility(View.VISIBLE);
+        }else{
+            tv.setVisibility(View.VISIBLE);
+            ivNoData.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        }
     }
 
 
@@ -393,7 +337,7 @@ public class WordCardsFragment extends Fragment {
             builder.setMessage(res.getString(R.string.delConfirm, word.word));
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    db.delete(DBHelper.TABLE_NAME,"id = " + word.id,null);
+                    dbo.delete(word.id);
                     wordList.remove(position);
                     notifyDataSetChanged();
                 }

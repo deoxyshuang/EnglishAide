@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">英文小幫手</string>
     <string name="app_name_en">EnglishAide</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="wordCards">字卡列表</string>
     <string name="search">字卡搜尋</string>
     <string name="quiz">隨機抽考</string>
