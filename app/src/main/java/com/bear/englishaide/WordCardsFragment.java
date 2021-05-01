@@ -13,11 +13,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -26,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -48,14 +50,15 @@ public class WordCardsFragment extends Fragment implements DBOperation.IDBOListe
     private Resources res;
     private SharedPreferences pref;
     private FloatingActionButton fab;
-    private TextView tv;
-    private ImageView ivNoData;
+    private LinearLayout noDataLayout;
     private Spinner spnType,spnSort;
     private View mainView;
     private RecyclerView recyclerView; //todo 動畫效果
     private Gson gson = new Gson();
     private MyAdapter myAdapter;
     private DBOperation dbo;
+    private ArrayList<HashMap> wordList = new ArrayList<>();
+    private Handler handler;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -79,8 +82,7 @@ public class WordCardsFragment extends Fragment implements DBOperation.IDBOListe
                              Bundle savedInstanceState) {
         Log.d("sj","frag onCreateView");
         mainView = inflater.inflate(R.layout.fragment_wordcards, container, false);
-        tv = mainView.findViewById(R.id.tv);
-        ivNoData = mainView.findViewById(R.id.ivNoData);
+        noDataLayout= mainView.findViewById(R.id.noDataLayout);
         recyclerView = mainView.findViewById(R.id.recyclerView);
         //懸浮按鈕
         fab = mainView.findViewById(R.id.fab);
@@ -113,6 +115,10 @@ public class WordCardsFragment extends Fragment implements DBOperation.IDBOListe
         spnType.setSelection(vocabType);
         spnSort.setSelection(sortType);
 
+        recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        myAdapter = new MyAdapter(context,wordList);
+        recyclerView.setAdapter(myAdapter);
+
         //字卡類型監聽事件(單字/片語)
         spnType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -138,6 +144,15 @@ public class WordCardsFragment extends Fragment implements DBOperation.IDBOListe
             public void onNothingSelected(AdapterView<?> adapterView) {
             }
         });
+
+        handler = new Handler(){
+            @Override
+            public void handleMessage(@NonNull Message msg) {
+                super.handleMessage(msg);
+                noDataLayout.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            }
+        };
 
         return mainView;
     }
@@ -215,22 +230,18 @@ public class WordCardsFragment extends Fragment implements DBOperation.IDBOListe
 
     @Override
     public void onQueryComplete(ArrayList wordList) {
+        this.wordList.clear();
+        this.wordList.addAll(wordList);
+        myAdapter.notifyDataSetChanged();
+
         if(wordList.size()>0){
-            tv.setVisibility(View.GONE);
-            ivNoData.setVisibility(View.GONE);
-            recyclerView.setHasFixedSize(true); //當我們確定Item的改變不會影響RecyclerView的寬高
-            recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            myAdapter = new MyAdapter(context,wordList);
-            recyclerView.setAdapter(myAdapter);
-            recyclerView.setBackgroundColor(ContextCompat.getColor(context, R.color.bgGray));
+            noDataLayout.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
         }else{
-            tv.setVisibility(View.VISIBLE);
-            ivNoData.setVisibility(View.VISIBLE);
+            noDataLayout.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         }
     }
-
 
     public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
@@ -304,14 +315,12 @@ public class WordCardsFragment extends Fragment implements DBOperation.IDBOListe
             });
         }
         private PopupWindow initPopupWindow(View view,int type, Word word,int position) { //todo 參數待整理
-
             PopupWindow mDropdown = null;
-
             try {
                 View layout = LayoutInflater.from(context).inflate(R.layout.word_card_popup_window, null);
-                mDropdown = new PopupWindow(layout);
                 mDropdown = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.WRAP_CONTENT,true);
+                final PopupWindow mDropdownFinal = mDropdown;
 
                 TextView tvEdit = layout.findViewById(R.id.tvEdit);
                 TextView tvDel = layout.findViewById(R.id.tvDel);
@@ -320,9 +329,11 @@ public class WordCardsFragment extends Fragment implements DBOperation.IDBOListe
                     intent.putExtra("type", type);
                     intent.putExtra("wordJson", gson.toJson(word));
                     startActivityForResult(intent, WORD_CARDS);
+                    mDropdownFinal.dismiss();
                 });
                 tvDel.setOnClickListener(v->{
                     showDelDialog(word,position);
+                    mDropdownFinal.dismiss();
                 });
 
                 mDropdown.showAsDropDown(view);
@@ -340,6 +351,7 @@ public class WordCardsFragment extends Fragment implements DBOperation.IDBOListe
                     dbo.delete(word.id);
                     wordList.remove(position);
                     notifyDataSetChanged();
+                    if(wordList.size()==0) handler.sendEmptyMessage(0);
                 }
             });
             builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

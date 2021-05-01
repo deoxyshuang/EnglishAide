@@ -22,7 +22,7 @@ class DBOperation {
     private SQLiteDatabase db;
     private DBHelper dbHelper;
     private Cursor cursor;
-    private ArrayList<HashMap> wordList = new ArrayList();
+    private ArrayList<HashMap> wordList = new ArrayList<>();
     private IDBOListener idboListener;
 
     DBOperation (Context context){
@@ -35,9 +35,8 @@ class DBOperation {
      * 字卡查詢
      * @param vocabType 字卡類型
      * @param sortType 排序
-     * @return wordList
      */
-    ArrayList dataQuery(VocabType vocabType, SortType sortType){
+    void dataQuery(VocabType vocabType, SortType sortType){
         wordList.clear();
 
         dbHelper = new DBHelper(context);
@@ -88,9 +87,8 @@ class DBOperation {
 
             }
         }
-        if(idboListener!=null) idboListener.onQueryComplete(wordList);
 
-        return wordList;
+        if(idboListener!=null) idboListener.onQueryComplete(wordList);
     }
 
     /**

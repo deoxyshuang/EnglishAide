@@ -11,12 +11,15 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -24,13 +27,17 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-public class SearchFragment extends Fragment{
+public class SearchFragment extends Fragment implements DBOperation.IDBOListener{
 
     private static final String TAG = SearchFragment.class.getSimpleName();
     private Context context;
     private View mainView;
+    private ArrayList<HashMap> wordList = new ArrayList<>();
+    private RecyclerView recyclerView;
     private RecyclerViewAdapter mAdapter;
     private DBOperation dbo;
+    private LinearLayout noResultLayout;
+    private UIHandler uiHandler;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -42,13 +49,15 @@ public class SearchFragment extends Fragment{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dbo = new DBOperation(context);
+        dbo.setIDBOListener(this);
+        uiHandler = new UIHandler();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mainView = inflater.inflate(R.layout.fragment_search, container, false);
-
+        noResultLayout = mainView.findViewById(R.id.noResultLayout);
         Toolbar toolbar = mainView.findViewById(R.id.toolbar);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.setSupportActionBar(toolbar);
@@ -69,10 +78,11 @@ public class SearchFragment extends Fragment{
             }
         });
 
-        RecyclerView recyclerView = mainView.findViewById(R.id.recyclerView);
+        recyclerView = mainView.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        mAdapter = new RecyclerViewAdapter(dbo.dataQuery(VocabType.ALL,SortType.OLD_TO_NEW));
+        mAdapter = new RecyclerViewAdapter(wordList);
         recyclerView.setAdapter(mAdapter);
+        dbo.dataQuery(VocabType.ALL,SortType.OLD_TO_NEW);
 
         return mainView;
     }
@@ -83,19 +93,24 @@ public class SearchFragment extends Fragment{
         dbo.destroy();
     }
 
+    @Override
+    public void onQueryComplete(ArrayList wordList) {
+        this.wordList.clear();
+        this.wordList.addAll(wordList);
+        mAdapter.notifyDataSetChanged();
+    }
+
     public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>
             implements Filterable {
 
-        /**上方的arrayList為RecyclerView所綁定的ArrayList*/
+        /**綁定RecyclerView的原始資料集*/
         ArrayList<HashMap> arrayList;
-        /**儲存最原先ArrayList的狀態(也就是充當回複RecyclerView最原先狀態的陣列)*/
+        /**儲存搜尋後結果*/
         ArrayList<HashMap> arrayListFilter;
 
         public RecyclerViewAdapter(ArrayList arrayList) {
             this.arrayList = arrayList;
             arrayListFilter = new ArrayList<>();
-            /**這裡把初始陣列複製進去了*/
-            arrayListFilter.addAll(arrayList);
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder{
@@ -103,7 +118,7 @@ public class SearchFragment extends Fragment{
             TextView tv;
             public ViewHolder(View itemView) {
                 super(itemView);
-                tv = itemView.findViewById(android.R.id.text1);
+                tv = itemView.findViewById(R.id.tv);
                 /**點擊事件*/
 //                tv.setOnClickListener(this);
             }
@@ -112,20 +127,19 @@ public class SearchFragment extends Fragment{
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
-                    .inflate(android.R.layout.simple_list_item_1,parent,false);
+                    .inflate(R.layout.item_search_result,parent,false);
             return new ViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            Word word = (Word) arrayList.get(position).get("word");
-            holder.tv.setTextSize(Utils.convertDpToPx(context, 7));
+            Word word = (Word) arrayListFilter.get(position).get("word");
             holder.tv.setText(word.word);
         }
 
         @Override
         public int getItemCount() {
-            return arrayList.size();
+            return arrayListFilter.size();
         }
 
         @Override
@@ -141,16 +155,11 @@ public class SearchFragment extends Fragment{
                 ArrayList<HashMap> filteredList = new ArrayList<>();
                 /**如果沒有輸入，則將原本的陣列帶入*/
                 if (constraint == null || constraint.length() == 0) {
-                    filteredList.addAll(arrayListFilter);
+                    filteredList.clear();
+                    uiHandler.sendEmptyMessage(0);
                 } else {
-                    /**如果有輸入，則照順序濾除相關字串
-                     * 如果你有更好的搜尋演算法，就是寫在這邊*/
-                    /*for (String movie: arrayListFilter) {
-                        if (movie.toLowerCase().contains(constraint.toString().toLowerCase())) {
-                            filteredList.add(movie);
-                        }
-                    }*/
-                    filteredList = (ArrayList<HashMap>) arrayListFilter.stream()
+                    /**如果有輸入，則照順序濾除相關字串*/
+                    filteredList = (ArrayList<HashMap>) arrayList.stream()
                             .filter(map -> {
                                 Word w = (Word) map.get("word");
                                 return w.word.toLowerCase().contains(constraint.toString().toLowerCase());
@@ -160,6 +169,9 @@ public class SearchFragment extends Fragment{
                                 Word w2 = (Word) map2.get("word");
                                 return w1.word.compareTo(w2.word);
                             }).collect(Collectors.toList());
+
+                    if(filteredList.size()>0) uiHandler.sendEmptyMessage(0);
+                    else uiHandler.sendEmptyMessage(1);
                 }
                 /**回傳濾除結果*/
                 FilterResults filterResults = new FilterResults();
@@ -169,10 +181,26 @@ public class SearchFragment extends Fragment{
             /**將濾除結果推給原先RecyclerView綁定的陣列，並通知RecyclerView刷新*/
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
-                arrayList.clear();
-                arrayList.addAll((Collection<? extends HashMap>) results.values);
+                arrayListFilter.clear();
+                arrayListFilter.addAll((Collection<? extends HashMap>) results.values);
                 notifyDataSetChanged();
             }
         };
+    }
+
+    private class UIHandler extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case 1:
+                    noResultLayout.setVisibility(View.VISIBLE);
+//                    recyclerView.setVisibility(View.GONE);
+                    break;
+                default:
+                    noResultLayout.setVisibility(View.GONE);
+//                    recyclerView.setVisibility(View.VISIBLE);
+            }
+        }
     }
 }
