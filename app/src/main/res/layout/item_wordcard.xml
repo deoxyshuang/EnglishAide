@@ -23,7 +23,7 @@
             android:id="@+id/ivStar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_round_star_26"
+            android:src="@drawable/ic_round_star_28"
             android:clickable="true"
             android:layout_gravity="start|top"
             android:layout_margin="5dp"
@@ -35,7 +35,8 @@
             android:layout_height="wrap_content"
             app:cardCornerRadius="15dp"
             app:cardElevation="4dp"
-            android:padding="10dp">
+            android:padding="10dp"
+            android:foreground="?attr/selectableItemBackgroundBorderless">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
