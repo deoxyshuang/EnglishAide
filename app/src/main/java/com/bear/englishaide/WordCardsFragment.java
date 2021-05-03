@@ -42,7 +42,7 @@ import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 
 
-public class WordCardsFragment extends Fragment implements DBOperation.IDBOListener {
+public class WordCardsFragment extends Fragment implements DBOperation.IQueryListener {
 
     private static final String TAG = WordCardsFragment.class.getSimpleName();
     private static final int WORD_CARDS = 1;
@@ -75,7 +75,7 @@ public class WordCardsFragment extends Fragment implements DBOperation.IDBOListe
         Log.d("sj","frag onCreate");
         pref = context.getSharedPreferences(res.getString(R.string.app_name_en), MODE_PRIVATE);
         dbo = new DBOperation(context);
-        dbo.setIDBOListener(this);
+        dbo.setQueryListener(this);
         partList2 = res.getStringArray(R.array.partList2);
     }
 
@@ -355,32 +355,27 @@ public class WordCardsFragment extends Fragment implements DBOperation.IDBOListe
             }
 
             private PopupWindow initPopupWindow(View view, int type, Word word, int position) {
-                PopupWindow mDropdown = null;
-                try {
-                    View layout = LayoutInflater.from(context).inflate(R.layout.word_card_popup_window, null);
-                    mDropdown = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT,true);
-                    final PopupWindow mDropdownFinal = mDropdown;
+                PopupWindow mDropdown;
+                View layout = LayoutInflater.from(context).inflate(R.layout.word_card_popup_window, null);
+                mDropdown = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT,true);
+                final PopupWindow mDropdownFinal = mDropdown;
 
-                    TextView tvEdit = layout.findViewById(R.id.tvEdit);
-                    TextView tvDel = layout.findViewById(R.id.tvDel);
-                    tvEdit.setOnClickListener(v->{
-                        Intent intent = new Intent(mContext, EditWordCardActivity.class);
-                        intent.putExtra("type", type);
-                        intent.putExtra("wordJson", gson.toJson(word));
-                        startActivityForResult(intent, WORD_CARDS);
-                        mDropdownFinal.dismiss();
-                    });
-                    tvDel.setOnClickListener(v->{
+                TextView tvEdit = layout.findViewById(R.id.tvEdit);
+                TextView tvDel = layout.findViewById(R.id.tvDel);
+                tvEdit.setOnClickListener(v->{
+                    Intent intent = new Intent(mContext, EditWordCardActivity.class);
+                    intent.putExtra("type", type);
+                    intent.putExtra("wordJson", gson.toJson(word));
+                    startActivityForResult(intent, WORD_CARDS);
+                    mDropdownFinal.dismiss();
+                });
+                tvDel.setOnClickListener(v->{
                         showDelDialog(word,position);
                         mDropdownFinal.dismiss();
                     });
 
-                    mDropdown.showAsDropDown(view);
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                mDropdown.showAsDropDown(view);
                 return mDropdown;
             }
 

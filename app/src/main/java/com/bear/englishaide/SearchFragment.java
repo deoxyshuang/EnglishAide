@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-public class SearchFragment extends Fragment implements DBOperation.IDBOListener{
+public class SearchFragment extends Fragment implements DBOperation.IQueryListener{
 
     private static final String TAG = SearchFragment.class.getSimpleName();
     private Context context;
@@ -49,7 +49,7 @@ public class SearchFragment extends Fragment implements DBOperation.IDBOListener
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dbo = new DBOperation(context);
-        dbo.setIDBOListener(this);
+        dbo.setQueryListener(this);
         uiHandler = new UIHandler();
     }
 

@@ -15,7 +15,7 @@
     <string name="delete">刪除</string>
     <string name="delConfirm">確定要刪除字卡【 %1$s 】嗎？</string>
     <string name="saveOK">儲存成功</string>
-    <string name="saveNG">儲存失敗 ERROR:</string>
+    <string name="saveNG">儲存失敗</string>
     <string name="mean">中文解釋</string>
     <string name="example">例句</string>
     <string name="phr">phr.</string>

@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,7 +33,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
-public class EditWordCardActivity extends AppCompatActivity implements View.OnClickListener{
+public class EditWordCardActivity extends AppCompatActivity implements View.OnClickListener, DBOperation.IDataListener{
 
     private Resources res;
     private EditText edtWord,edtMean,edtSentence;
@@ -55,6 +54,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
     private LinearLayout cvArea,cvSection;
     private ArrayList<Mean> meanList;
     private String wordJson;
+    private DBOperation dbo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +65,8 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
         gson = new Gson();
         Toolbar toolbar = findViewById(R.id.toolbar);
         Intent intent = getIntent();
+        dbo = new DBOperation(this);
+        dbo.setDataListener(this);
         //資源檔
         famiKeyList = res.getIntArray(R.array.famiKeyList);
         partKeyList = res.getIntArray(R.array.partKeyList);
@@ -179,6 +181,12 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        dbo.destroy();
+    }
+
+    @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btnSave:
@@ -209,29 +217,14 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                     String json = gson.toJson(word);
                     Log.d("sj","obj->json:" + json);
 
-                    int colorId=0;
-                    String msg="";
-                    try{
-                        DBHelper dbHelper = new DBHelper(this);
-                        SQLiteDatabase db = dbHelper.getWritableDatabase();
-                        ContentValues values = new ContentValues();
-                        values.put("type", spnType.getSelectedItemPosition()+1);
-                        values.put("data", json);
-                        values.put("createTime", System.currentTimeMillis());
-                        if(wordJson==null) db.insertOrThrow(DBHelper.TABLE_NAME, null, values);
-                        else db.update(DBHelper.TABLE_NAME, values, " id = "+word.id,null);
-                        msg=res.getString(R.string.saveOK);
-                        colorId=ContextCompat.getColor(this,R.color.successGreen);
-                    }catch (SQLException e){
-                        e.printStackTrace();
-                        msg=res.getString(R.string.saveNG)+e.getMessage();
-                        colorId=ContextCompat.getColor(this,R.color.failureRed);
-                    }finally {
-                        Snackbar.make(viewPos, msg, Snackbar.LENGTH_SHORT)
-                                //.setAction("關閉", null)
-                                .setBackgroundTint(colorId)
-                                .show();
-                    }
+                    DBHelper dbHelper = new DBHelper(this);
+                    SQLiteDatabase db = dbHelper.getWritableDatabase();
+                    ContentValues values = new ContentValues();
+                    values.put("type", spnType.getSelectedItemPosition()+1);
+                    values.put("data", json);
+                    values.put("createTime", System.currentTimeMillis());
+                    if(wordJson==null) dbo.insert(values);
+                    else dbo.update(values, word.id);
                 }else{
                     Snackbar.make(viewPos, res.getString(R.string.alertMsg), Snackbar.LENGTH_SHORT)
                             .show();
@@ -248,6 +241,22 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
 
         }
     }
+
+    @Override
+    public void onSuccess(DBOperation.Operation operation) {
+        Snackbar.make(viewPos, res.getString(R.string.saveOK), Snackbar.LENGTH_SHORT)
+                //.setAction("關閉", null)
+                .setBackgroundTint(ContextCompat.getColor(this,R.color.successGreen))
+                .show();
+    }
+
+    @Override
+    public void onError(DBOperation.Operation operation) {
+        Snackbar.make(viewPos, res.getString(R.string.saveNG), Snackbar.LENGTH_SHORT)
+                .setBackgroundTint(ContextCompat.getColor(this,R.color.failureRed))
+                .show();
+    }
+
     /**
      * 增加新的詞性解釋
      * @return 以HashMap形式回傳尚未設值的元件
