@@ -19,7 +19,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/lightBlue"
                 app:titleTextColor="@color/white"
-                android:elevation="@dimen/fabMargin"
+                android:elevation="25px"
                 app:layout_scrollFlags="scroll|enterAlways"
                 android:contentInsetLeft="0dp"
                 android:contentInsetStart="0dp"

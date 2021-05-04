@@ -60,6 +60,7 @@ public class WordCardsFragment extends Fragment implements DBOperation.IQueryLis
     private DBOperation dbo;
     private ArrayList<HashMap> wordList = new ArrayList<>();
     private Handler handler;
+    private AppCompatActivity activity;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -83,7 +84,7 @@ public class WordCardsFragment extends Fragment implements DBOperation.IQueryLis
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.d("sj","frag onCreateView");
-        mainView = inflater.inflate(R.layout.fragment_wordcards, container, false);
+        mainView = inflater.inflate(R.layout.fragment_word_cards, container, false);
         noDataLayout= mainView.findViewById(R.id.noDataLayout);
         recyclerView = mainView.findViewById(R.id.recyclerView);
         //懸浮按鈕
@@ -94,7 +95,7 @@ public class WordCardsFragment extends Fragment implements DBOperation.IQueryLis
         });
         //
         Toolbar toolbar = mainView.findViewById(R.id.toolbar);
-        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        activity = (AppCompatActivity) getActivity();
         activity.setSupportActionBar(toolbar);
         activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
@@ -304,10 +305,18 @@ public class WordCardsFragment extends Fragment implements DBOperation.IQueryLis
                 ivMore = itemView.findViewById(R.id.ivMore);
                 ivStar = itemView.findViewById(R.id.ivStar);
 
+                itemView.setOnClickListener(v ->{
+                    Intent intent = new Intent(mContext, WordCardActivity.class);
+//                    intent.putExtra("type", type);
+//                    intent.putExtra("wordJson", gson.toJson(word));
+//                    startActivityForResult(intent, WORD_CARDS);
+                    startActivity(intent);
+                    activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                });
                 itemView.setOnLongClickListener(v -> {
                     int position = getAdapterPosition();
                     showDelDialog(getWordObj(position),position);
-                    return false;
+                    return true;
                 });
                 ivMore.setOnClickListener(v -> {
                     int position = getAdapterPosition();
@@ -371,9 +380,9 @@ public class WordCardsFragment extends Fragment implements DBOperation.IQueryLis
                     mDropdownFinal.dismiss();
                 });
                 tvDel.setOnClickListener(v->{
-                        showDelDialog(word,position);
-                        mDropdownFinal.dismiss();
-                    });
+                    showDelDialog(word,position);
+                    mDropdownFinal.dismiss();
+                });
 
                 mDropdown.showAsDropDown(view);
                 return mDropdown;

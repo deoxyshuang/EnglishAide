@@ -2,6 +2,9 @@ package com.bear.englishaide;
 
 import android.content.Context;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 共用函式庫
  */
@@ -12,10 +15,11 @@ class Utils {
     static public float convertDpToPx(Context context, float dp) {
         return dp * context.getResources().getDisplayMetrics().density;
     }
-    static public int findKeyByVal(int[] ary, int val) {
-        for(int i=0;i<ary.length;i++){
-            if(ary[i]==val) return i;
+    static public List<Integer> intArrayToList(int[] ary) {
+        List<Integer> intList = new ArrayList(ary.length);
+        for (int i : ary) {
+            intList.add(i);
         }
-        return -1;
+        return intList;
     }
 }

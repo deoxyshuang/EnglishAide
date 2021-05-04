@@ -3,20 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-<!--    <include layout="@layout/no_toolbar"/>-->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:background="@color/lightBlue"
-        app:titleTextColor="@color/white"
-        android:elevation="@dimen/fabMargin">
-    </androidx.appcompat.widget.Toolbar>
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".EditWordCardActivity">
 
     <!-- todo 寫進相關資源檔 -->
     <ScrollView
@@ -24,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintVertical_weight="1"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/bottomLayout"
         android:background="@color/bgGray">
 

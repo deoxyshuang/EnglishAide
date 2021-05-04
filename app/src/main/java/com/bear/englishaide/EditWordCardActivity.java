@@ -10,6 +10,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -27,10 +28,12 @@ import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.stream.IntStream;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
 public class EditWordCardActivity extends AppCompatActivity implements View.OnClickListener, DBOperation.IDataListener{
@@ -59,12 +62,15 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_wordcard);
+        setContentView(R.layout.activity_edit_word_card);
 
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeAsUpIndicator(R.drawable.ic_round_close_24);
+        actionBar.setElevation(25);//todo
+        Intent intent = getIntent();
         res = getResources();
         gson = new Gson();
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        Intent intent = getIntent();
         dbo = new DBOperation(this);
         dbo.setDataListener(this);
         //資源檔
@@ -118,11 +124,11 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
         int type = intent.getIntExtra("type",-1);
         Log.d("sj", "wordJson:"+wordJson);
         if(wordJson!=null){ //編輯字卡
-            toolbar.setTitle(R.string.editWordCard);
+            actionBar.setTitle(R.string.editWordCard);
             word = gson.fromJson(wordJson,Word.class);
             meanList = word.meanList;
 
-            int fami=Utils.findKeyByVal(famiKeyList,word.fami);
+            Integer fami = Utils.intArrayToList(famiKeyList).stream().filter(key -> key == word.fami).findFirst().get();
             spnFami.setSelection(((fami>-1)?fami:2));
             edtWord.setText(word.word);
             if(type>-1){
@@ -142,14 +148,10 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                 spnType.setSelection(0);
             }
         }else{ //新增字卡
-            toolbar.setTitle(R.string.create);
+            actionBar.setTitle(R.string.create);
             word = new Word();
             spnFami.setSelection(2);
         }
-        setSupportActionBar(toolbar);
-        //setSupportActionBar(toolbar)一定要放在setNavigationOnClickListener前,不然onclick无效
-        toolbar.setNavigationIcon(R.drawable.ic_round_close_30);
-        toolbar.setNavigationOnClickListener(v->finish());
 
         //字卡類型監聽事件(單字/片語)
         spnType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -172,6 +174,16 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
 
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
