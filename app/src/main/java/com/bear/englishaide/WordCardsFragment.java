@@ -2,7 +2,6 @@ package com.bear.englishaide;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -10,7 +9,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -45,7 +43,7 @@ import static android.content.Context.MODE_PRIVATE;
 public class WordCardsFragment extends Fragment implements DBOperation.IQueryListener {
 
     private static final String TAG = WordCardsFragment.class.getSimpleName();
-    private static final int WORD_CARDS = 1;
+    private static final int WORD_CARD_LIST = 1;
     private Context context;
     private Resources res;
     private SharedPreferences pref;
@@ -91,7 +89,7 @@ public class WordCardsFragment extends Fragment implements DBOperation.IQueryLis
         fab = mainView.findViewById(R.id.fab);
         fab.setOnClickListener(v->{
             Intent intent = new Intent(context, EditWordCardActivity.class);
-            startActivityForResult(intent, WORD_CARDS);
+            startActivityForResult(intent, WORD_CARD_LIST);
         });
         //
         Toolbar toolbar = mainView.findViewById(R.id.toolbar);
@@ -163,7 +161,7 @@ public class WordCardsFragment extends Fragment implements DBOperation.IQueryLis
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == WORD_CARDS){
+        if (requestCode == WORD_CARD_LIST){
             if (resultCode == RESULT_OK){
                 dbo.dataQuery(VocabType.getType(spnType.getSelectedItemPosition()),
                         SortType.getType(spnSort.getSelectedItemPosition()));
@@ -306,21 +304,21 @@ public class WordCardsFragment extends Fragment implements DBOperation.IQueryLis
                 ivStar = itemView.findViewById(R.id.ivStar);
 
                 itemView.setOnClickListener(v ->{
+                    int position = getAdapterPosition();
                     Intent intent = new Intent(mContext, WordCardActivity.class);
-//                    intent.putExtra("type", type);
-//                    intent.putExtra("wordJson", gson.toJson(word));
-//                    startActivityForResult(intent, WORD_CARDS);
-                    startActivity(intent);
+                    intent.putExtra("type", getWordType(position));
+                    intent.putExtra("wordJson", gson.toJson(getWordObj(position)));
+                    intent.putExtra("hasMark", getWordMark(position));
+                    startActivityForResult(intent, WORD_CARD_LIST);
                     activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                 });
                 itemView.setOnLongClickListener(v -> {
-                    int position = getAdapterPosition();
-                    showDelDialog(getWordObj(position),position);
+                    Utils.showDelDialog(context, iDialogListener, getWordObj(getAdapterPosition()).word);
                     return true;
                 });
                 ivMore.setOnClickListener(v -> {
                     int position = getAdapterPosition();
-                    initPopupWindow(ivMore,getWordType(position),getWordObj(position),position);
+                    initPopupWindow(ivMore,getWordType(position),getWordObj(position));
                 });
                 ivStar.setOnClickListener(v -> {
                     int position = getAdapterPosition();
@@ -342,28 +340,7 @@ public class WordCardsFragment extends Fragment implements DBOperation.IQueryLis
                 });
             }
 
-            private void showDelDialog(Word word, int position){
-                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-                builder.setMessage(res.getString(R.string.delConfirm, word.word));
-                builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dbo.delete(word.id);
-                        wordList.remove(position);
-                        notifyItemRemoved(position);
-                        if(wordList.size()==0) handler.sendEmptyMessage(0);
-                    }
-                });
-                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int id) {
-
-                    }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
-
-            private PopupWindow initPopupWindow(View view, int type, Word word, int position) {
+            private PopupWindow initPopupWindow(View view, int type, Word word) {
                 PopupWindow mDropdown;
                 View layout = LayoutInflater.from(context).inflate(R.layout.word_card_popup_window, null);
                 mDropdown = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -376,11 +353,11 @@ public class WordCardsFragment extends Fragment implements DBOperation.IQueryLis
                     Intent intent = new Intent(mContext, EditWordCardActivity.class);
                     intent.putExtra("type", type);
                     intent.putExtra("wordJson", gson.toJson(word));
-                    startActivityForResult(intent, WORD_CARDS);
+                    startActivityForResult(intent, WORD_CARD_LIST);
                     mDropdownFinal.dismiss();
                 });
                 tvDel.setOnClickListener(v->{
-                    showDelDialog(word,position);
+                    Utils.showDelDialog(context, iDialogListener, word.word);
                     mDropdownFinal.dismiss();
                 });
 
@@ -388,6 +365,21 @@ public class WordCardsFragment extends Fragment implements DBOperation.IQueryLis
                 return mDropdown;
             }
 
+            private IDialogListener iDialogListener = new IDialogListener() {
+                @Override
+                public void onClickPositiveButton() {
+                    int position = getAdapterPosition();
+                    dbo.delete(getWordObj(position).id);
+                    wordList.remove(position);
+                    notifyItemRemoved(position);
+                    if(wordList.size()==0) handler.sendEmptyMessage(0);
+                }
+
+                @Override
+                public void onClickNegativeButton() {
+
+                }
+            };
         }
     }
 }

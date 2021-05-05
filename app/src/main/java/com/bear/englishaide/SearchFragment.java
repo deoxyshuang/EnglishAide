@@ -147,7 +147,7 @@ public class SearchFragment extends Fragment implements DBOperation.IQueryListen
             return mFilter;
         }
         /**使用Filter濾除方法*/
-        Filter mFilter = new Filter() {
+        private Filter mFilter = new Filter() {
             /**此處為正在濾除字串時所做的事*/
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {

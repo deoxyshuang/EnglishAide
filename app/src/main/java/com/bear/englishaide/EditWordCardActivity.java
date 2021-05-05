@@ -27,8 +27,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.stream.IntStream;
 
 import androidx.annotation.NonNull;
@@ -128,7 +128,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
             word = gson.fromJson(wordJson,Word.class);
             meanList = word.meanList;
 
-            Integer fami = Utils.intArrayToList(famiKeyList).stream().filter(key -> key == word.fami).findFirst().get();
+            Integer fami = Arrays.stream(famiKeyList).filter(key -> key == word.fami).boxed().toArray( Integer[]::new )[0];
             spnFami.setSelection(((fami>-1)?fami:2));
             edtWord.setText(word.word);
             if(type>-1){

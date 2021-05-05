@@ -19,6 +19,7 @@
     <string name="mean">中文解釋</string>
     <string name="example">例句</string>
     <string name="phr">phr.</string>
+    <string name="starSign">標記星號</string>
     <string-array name="typeList">
         <item>單字</item>
         <item>片語</item>
