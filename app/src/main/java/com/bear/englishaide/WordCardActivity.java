@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
 
 import com.google.gson.Gson;
 
@@ -23,6 +24,7 @@ public class WordCardActivity extends AppCompatActivity{
     private int type,hasMark;
     private String wordJson;
     private DBOperation dbo;
+    private LinearLayout mainLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,12 @@ public class WordCardActivity extends AppCompatActivity{
         actionBar.setTitle(word.word);
 
         dbo = new DBOperation(this);
+        mainLayout = findViewById(R.id.mainLayout);
+        createContent();
+    }
+
+    private void createContent(){
+        
     }
 
     @Override

@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.TypedValue;
@@ -159,13 +158,21 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) edtMean.getLayoutParams();
                 if(i>0){ //片語
-                    spnPart.setVisibility(View.GONE);
                     params.setMarginStart(0);
-                    edtMean.setLayoutParams(params);
+                    dataList.forEach(hashMap->{
+                        Spinner p = (Spinner) hashMap.get("part");
+                        p.setVisibility(View.GONE);
+                        EditText m = (EditText) hashMap.get("mean");
+                        m.setLayoutParams(params);
+                    });
                 }else{ //單字
-                    spnPart.setVisibility(View.VISIBLE);
                     params.setMarginStart((int) res.getDimension(R.dimen.comSpacing));
-                    edtMean.setLayoutParams(params);
+                    dataList.forEach(hashMap->{
+                        Spinner p = (Spinner) hashMap.get("part");
+                        p.setVisibility(View.VISIBLE);
+                        EditText m = (EditText) hashMap.get("mean");
+                        m.setLayoutParams(params);
+                    });
                 }
             }
 
@@ -229,14 +236,13 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                     String json = gson.toJson(word);
                     Log.d("sj","obj->json:" + json);
 
-                    DBHelper dbHelper = new DBHelper(this);
-                    SQLiteDatabase db = dbHelper.getWritableDatabase();
                     ContentValues values = new ContentValues();
                     values.put("type", spnType.getSelectedItemPosition()+1);
                     values.put("data", json);
-                    values.put("createTime", System.currentTimeMillis());
-                    if(wordJson==null) dbo.insert(values);
-                    else dbo.update(values, word.id);
+                    if(wordJson==null) {
+                        values.put("createTime", System.currentTimeMillis());
+                        dbo.insert(values);
+                    } else dbo.update(values, word.id);
                 }else{
                     Snackbar.make(viewPos, res.getString(R.string.alertMsg), Snackbar.LENGTH_SHORT)
                             .show();
@@ -314,7 +320,11 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
         EditText et = new EditText(this);
         LinearLayout.LayoutParams selfParam = new LinearLayout.LayoutParams(0,LinearLayout.LayoutParams.WRAP_CONTENT);
         selfParam.weight=1;
-        selfParam.setMarginStart((int) res.getDimension(R.dimen.comSpacing));
+        if(spnType.getSelectedItemPosition()==0) { //單字
+            selfParam.setMarginStart((int) res.getDimension(R.dimen.comSpacing));
+        } else { //片語
+            spinner.setVisibility(View.GONE);
+        }
         et.setLayoutParams(selfParam);
         et.setTextSize(TypedValue.COMPLEX_UNIT_PX,res.getDimension(R.dimen.contentTextSize));
         et.setHint(res.getString(R.string.mean));
