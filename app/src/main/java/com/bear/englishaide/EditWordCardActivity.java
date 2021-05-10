@@ -44,6 +44,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
     private Button btnSave;
     private Spinner spnFami,spnType,spnPart;
     private ImageView ivAdd,ivAddSen;
+    private int type;
     private Word word;
     private Gson gson;
     private View viewPos;
@@ -120,7 +121,7 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
         dataList.add(firstData);
 
         wordJson = intent.getStringExtra("wordJson");
-        int type = intent.getIntExtra("type",-1);
+        type = intent.getIntExtra("type",-1);
         Log.d("sj", "wordJson:"+wordJson);
         if(wordJson!=null){ //編輯字卡
             actionBar.setTitle(R.string.editWordCard);
@@ -195,7 +196,10 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
 
     @Override
     public void finish() {
-        setResult(RESULT_OK);
+        Intent data = new Intent();
+        data.putExtra("type", type);
+        data.putExtra("wordJson", wordJson);
+        setResult(RESULT_OK, data);
         super.finish();
     }
 
@@ -237,12 +241,14 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
                     Log.d("sj","obj->json:" + json);
 
                     ContentValues values = new ContentValues();
-                    values.put("type", spnType.getSelectedItemPosition()+1);
+                    type = spnType.getSelectedItemPosition()+1;
+                    values.put("type", type);
                     values.put("data", json);
                     if(wordJson==null) {
                         values.put("createTime", System.currentTimeMillis());
-                        dbo.insert(values);
+                        word.id = dbo.insert(values);
                     } else dbo.update(values, word.id);
+                    wordJson = json;
                 }else{
                     Snackbar.make(viewPos, res.getString(R.string.alertMsg), Snackbar.LENGTH_SHORT)
                             .show();

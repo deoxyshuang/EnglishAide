@@ -322,7 +322,7 @@ public class WordCardsFragment extends Fragment implements DBOperation.IQueryLis
                 });
                 ivStar.setOnClickListener(v -> {
                     int position = getAdapterPosition();
-                    int id = getWordObj(position).id;
+                    long id = getWordObj(position).id;
                     int hasMark;
                     ContentValues values = new ContentValues();
                     if (getWordMark(position)==0){  //沒有星號標記

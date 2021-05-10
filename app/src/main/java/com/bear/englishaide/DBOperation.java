@@ -58,7 +58,6 @@ class DBOperation {
         try {
             cursor = db.rawQuery("select * from " + DBHelper.TABLE_NAME +sqlWhere + sqlOrder,param);
             if (cursor != null) {
-                Log.d("sj","有幾筆資料:" + cursor.getCount());
                 if(cursor.getCount()>0){
                     while (cursor.moveToNext()) {
                         Word word = gson.fromJson(cursor.getString(2), Word.class);
@@ -98,11 +97,13 @@ class DBOperation {
      * 新增字卡
      * @param values 新增資料的欄位值
      */
-    void insert(ContentValues values){
-        if(db.insert(DBHelper.TABLE_NAME, null, values)>0)
+    long insert(ContentValues values){
+        long id = db.insert(DBHelper.TABLE_NAME, null, values);
+        if(id>0)
             if(iDataListener!=null) iDataListener.onSuccess(Operation.CREATE);
         else
             if(iDataListener!=null) iDataListener.onError(Operation.CREATE);
+        return id;
     }
 
     /**
@@ -110,7 +111,7 @@ class DBOperation {
      * @param values 異動資料的欄位值
      * @param id 字卡id
      */
-    void update(ContentValues values, int id){
+    void update(ContentValues values, long id){
         if(db.update(DBHelper.TABLE_NAME, values, " id = "+id,null)==1)
             if(iDataListener!=null) iDataListener.onSuccess(Operation.UPDATE);
         else
@@ -121,7 +122,7 @@ class DBOperation {
      * 刪除單筆字卡
      * @param id 字卡id
      */
-    void delete(int id) {
+    void delete(long id) {
         db.delete(DBHelper.TABLE_NAME,"id = " + id,null);
     }
 

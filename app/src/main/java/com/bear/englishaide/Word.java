@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 class Word {
     int fami=1;
-    int id;
+    long id;
     //@SerializedName("Name")
     String word;
     ArrayList<Mean> meanList;
