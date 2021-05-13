@@ -16,7 +16,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
-    private WordCardsFragment wordCardsFragment;
+    private WordCardListFragment wordCardListFragment;
     private SearchFragment searchFragment;
     private QuizFragment quizFragment;
     private FragmentManager fragmentManager;
@@ -31,12 +31,12 @@ public class MainActivity extends AppCompatActivity {
         Log.d("sj", "onCreate: ");
 
         //fragment相關
-        wordCardsFragment = new WordCardsFragment();
+        wordCardListFragment = new WordCardListFragment();
         searchFragment = new SearchFragment();
         quizFragment = new QuizFragment();
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.containerLayout, wordCardsFragment);
+        fragmentTransaction.add(R.id.containerLayout, wordCardListFragment);
         fragmentTransaction.commit();
 
         //下方導覽列
@@ -50,15 +50,15 @@ public class MainActivity extends AppCompatActivity {
                         //fragmentTransaction.replace(R.id.containerLayout, wordCardsFragment);
                         if(searchFragment.isAdded()) fragmentTransaction.hide(searchFragment);
                         if(quizFragment.isAdded()) fragmentTransaction.hide(quizFragment);
-                        if(wordCardsFragment.isAdded()){
-                            fragmentTransaction.show(wordCardsFragment);
+                        if(wordCardListFragment.isAdded()){
+                            fragmentTransaction.show(wordCardListFragment);
                         }else{
-                            fragmentTransaction.add(R.id.containerLayout, wordCardsFragment);
+                            fragmentTransaction.add(R.id.containerLayout, wordCardListFragment);
                         }
                         break;
                     case R.id.search:
                         //fragmentTransaction.replace(R.id.containerLayout, searchFragment);
-                        if(wordCardsFragment.isAdded()) fragmentTransaction.hide(wordCardsFragment);
+                        if(wordCardListFragment.isAdded()) fragmentTransaction.hide(wordCardListFragment);
                         if(quizFragment.isAdded()) fragmentTransaction.hide(quizFragment);
                         if(searchFragment.isAdded()){
                             fragmentTransaction.show(searchFragment);
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.quiz:
                         //fragmentTransaction.replace(R.id.containerLayout, quizFragment);
-                        if(wordCardsFragment.isAdded()) fragmentTransaction.hide(wordCardsFragment);
+                        if(wordCardListFragment.isAdded()) fragmentTransaction.hide(wordCardListFragment);
                         if(searchFragment.isAdded()) fragmentTransaction.hide(searchFragment);
                         if(quizFragment.isAdded()){
                             fragmentTransaction.show(quizFragment);

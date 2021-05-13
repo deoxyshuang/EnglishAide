@@ -40,9 +40,9 @@ import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 
 
-public class WordCardsFragment extends Fragment implements DBOperation.IQueryListener {
+public class WordCardListFragment extends Fragment implements DBOperation.IQueryListener {
 
-    private static final String TAG = WordCardsFragment.class.getSimpleName();
+    private static final String TAG = WordCardListFragment.class.getSimpleName();
     private static final int WORD_CARD_LIST = 1;
     private Context context;
     private Resources res;
@@ -82,7 +82,7 @@ public class WordCardsFragment extends Fragment implements DBOperation.IQueryLis
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         Log.d("sj","frag onCreateView");
-        mainView = inflater.inflate(R.layout.fragment_word_cards, container, false);
+        mainView = inflater.inflate(R.layout.fragment_word_card_list, container, false);
         noDataLayout= mainView.findViewById(R.id.noDataLayout);
         recyclerView = mainView.findViewById(R.id.recyclerView);
         //懸浮按鈕
@@ -306,9 +306,12 @@ public class WordCardsFragment extends Fragment implements DBOperation.IQueryLis
                 itemView.setOnClickListener(v ->{
                     int position = getAdapterPosition();
                     Intent intent = new Intent(mContext, WordCardActivity.class);
+                    intent.putExtra("position",position+1);
                     intent.putExtra("type", getWordType(position));
                     intent.putExtra("wordJson", gson.toJson(getWordObj(position)));
                     intent.putExtra("hasMark", getWordMark(position));
+                    intent.putExtra("vocabType",spnType.getSelectedItemPosition());
+                    intent.putExtra("sortType",spnSort.getSelectedItemPosition());
                     startActivityForResult(intent, WORD_CARD_LIST);
                     activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                 });
