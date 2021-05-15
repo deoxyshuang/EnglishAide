@@ -13,6 +13,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -23,21 +24,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class WordCardActivity extends AppCompatActivity implements DBOperation.IQueryListener {
+public class WordCardActivity extends AppCompatActivity implements DBOperation.IQueryListener, DBOperation.IDataListener {
 
     private static final int WORD_CARD = 2;
     private Gson gson = new Gson();
     private ActionBar actionBar;
     private Word word;
     private int position,type,hasMark;
-    private String wordJson;
     private DBOperation dbo;
     private TextView tvPos, tvTotal;
     private ArrayList<HashMap> wordList = new ArrayList<>();
     private enum Status{INIT,REFRESH}
     private ViewPager2 pager;
-    private FragmentStateAdapter pagerAdapter;
-    private Menu actionbarMenu;
+    private MyPagerAdapter pagerAdapter;
+    private MenuItem starItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +50,7 @@ public class WordCardActivity extends AppCompatActivity implements DBOperation.I
 
         dbo = new DBOperation(this);
         dbo.setQueryListener(this);
+        dbo.setDataListener(this);
 
         actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -59,54 +60,67 @@ public class WordCardActivity extends AppCompatActivity implements DBOperation.I
 
         pagerAdapter = new MyPagerAdapter(this, wordList);
         pager.setAdapter(pagerAdapter);
-        pager.setCurrentItem(position-1);
+        pager.setCurrentItem(position);
         pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback(){
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
-                tvPos.setText(String.valueOf(position));
-                int hasMark = (int) wordList.get(position).get("hasMark");
-                Word word = (Word) wordList.get(position).get("word");
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                tvPos.setText(String.valueOf(position+1));
+                type = (int) wordList.get(position).get("type");
+                hasMark = (int) wordList.get(position).get("hasMark");
+                word = (Word) wordList.get(position).get("word");
                 actionBar.setTitle(word.word);
-                //todo
-                if(hasMark==1) actionbarMenu.findItem(R.id.star).setIcon(ContextCompat.getDrawable(WordCardActivity.this,R.drawable.ic_round_star_pressed_28));
-                else actionbarMenu.findItem(R.id.star).setIcon(ContextCompat.getDrawable(WordCardActivity.this,R.drawable.ic_round_star_28));
+                WordCardActivity.this.position = position;
+                if(hasMark==1) starItem.setIcon(ContextCompat.getDrawable(WordCardActivity.this,R.drawable.ic_round_star_pressed_28));
+                else starItem.setIcon(ContextCompat.getDrawable(WordCardActivity.this,R.drawable.ic_round_star_28));
             }
         });
     }
 
     private void parseIntent(Status status, Intent intent){
-        type = intent.getIntExtra("type", 1);
-        wordJson = intent.getStringExtra("wordJson");
-        if(wordJson!=null) word = gson.fromJson(wordJson,Word.class); //todo
-        actionBar.setTitle(word.word);
-
         switch (status){
             case INIT:
+                position = intent.getIntExtra("position",1);
                 dbo.dataQuery(VocabType.getType(intent.getIntExtra("vocabType",0)),
                         SortType.getType(intent.getIntExtra("sortType",0)));
-                position = intent.getIntExtra("position",1);
-                hasMark = intent.getIntExtra("hasMark",0);
-                tvPos.setText(String.valueOf(position));
+                hasMark = (int) wordList.get(position).get("hasMark");
+                tvPos.setText(String.valueOf(position+1));
                 tvTotal.setText(String.valueOf(wordList.size()));
+                type = (int) wordList.get(position).get("type");
+                word = (Word) wordList.get(position).get("word");
                 break;
             case REFRESH:
+                type = intent.getIntExtra("type",1);
+                word = gson.fromJson(intent.getStringExtra("wordJson"),Word.class);
+                wordList.get(position).put("type", type);
+                wordList.get(position).put("word", word);
                 break;
         }
+        actionBar.setTitle(word.word);
     }
 
     @Override
     public void onQueryComplete(ArrayList wordList) {
         this.wordList = wordList;
     }
+    @Override
+    public void onSuccess(DBOperation.Operation operation) {
+        switch (operation){
+            case UPDATE:
+                wordList.get(position).put("hasMark", hasMark);
+                break;
+        }
+    }
+    @Override
+    public void onError(DBOperation.Operation operation) {
 
-
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.actionbar_menu, menu);
-        actionbarMenu = menu;
-        if(hasMark==1) menu.findItem(R.id.star).setIcon(ContextCompat.getDrawable(this,R.drawable.ic_round_star_pressed_28));
+        starItem = menu.findItem(R.id.star);
+        if(hasMark==1) starItem.setIcon(ContextCompat.getDrawable(this,R.drawable.ic_round_star_pressed_28));
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -132,7 +146,7 @@ public class WordCardActivity extends AppCompatActivity implements DBOperation.I
             case R.id.edit:
                 Intent intent = new Intent(this, EditWordCardActivity.class);
                 intent.putExtra("type", type);
-                intent.putExtra("wordJson", wordJson);
+                intent.putExtra("wordJson", gson.toJson(word));
                 startActivityForResult(intent, WORD_CARD);
                 return true;
             case R.id.del:
@@ -148,8 +162,7 @@ public class WordCardActivity extends AppCompatActivity implements DBOperation.I
         if (requestCode == WORD_CARD){
             if (resultCode == RESULT_OK){
                 parseIntent(Status.REFRESH, data);
-                //todo
-//                createContent();
+                pagerAdapter.fragmentList.get(position).createContent(type,word);
             }
         }
     }
@@ -183,6 +196,7 @@ public class WordCardActivity extends AppCompatActivity implements DBOperation.I
     public class MyPagerAdapter extends FragmentStateAdapter {
 
         private List<HashMap> dataList;
+        public SparseArray<WordCardFragment> fragmentList = new SparseArray<>();
 
         public MyPagerAdapter(@NonNull AppCompatActivity appCompatActivity, ArrayList<HashMap> wordList) {
             super(appCompatActivity);
@@ -197,6 +211,7 @@ public class WordCardActivity extends AppCompatActivity implements DBOperation.I
             bundle.putInt("type", (Integer) wordList.get(position).get("type"));
             bundle.putString("wordJson", gson.toJson(wordList.get(position).get("word")));
             wordCardFragment.setArguments(bundle);
+            fragmentList.put(position,wordCardFragment);
             return wordCardFragment;
         }
 

@@ -46,8 +46,8 @@ public class WordCardFragment extends Fragment {
         return mainView;
     }
 
-    private void createContent(int type,Word word){
-//        mainLayout.removeAllViews();
+    public void createContent(int type,Word word){
+        mainLayout.removeAllViews();
 
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT);
         LinearLayout.LayoutParams wrapParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT);
