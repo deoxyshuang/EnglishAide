@@ -16,6 +16,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -33,6 +34,7 @@ public class WordCardActivity extends AppCompatActivity implements DBOperation.I
     private int position,type,hasMark;
     private DBOperation dbo;
     private TextView tvPos, tvTotal;
+    private ImageView ivPrev, ivNext;
     private ArrayList<HashMap> wordList = new ArrayList<>();
     private enum Status{INIT,REFRESH}
     private ViewPager2 pager;
@@ -47,6 +49,8 @@ public class WordCardActivity extends AppCompatActivity implements DBOperation.I
         pager = findViewById(R.id.pager);
         tvPos = findViewById(R.id.tvPos);
         tvTotal = findViewById(R.id.tvTotal);
+        ivPrev = findViewById(R.id.ivPrev);
+        ivNext = findViewById(R.id.ivNext);
 
         dbo = new DBOperation(this);
         dbo.setQueryListener(this);
@@ -71,9 +75,18 @@ public class WordCardActivity extends AppCompatActivity implements DBOperation.I
                 word = (Word) wordList.get(position).get("word");
                 actionBar.setTitle(word.word);
                 WordCardActivity.this.position = position;
-                if(hasMark==1) starItem.setIcon(ContextCompat.getDrawable(WordCardActivity.this,R.drawable.ic_round_star_pressed_28));
-                else starItem.setIcon(ContextCompat.getDrawable(WordCardActivity.this,R.drawable.ic_round_star_28));
+                if(starItem!=null){
+                    if(hasMark==1) starItem.setIcon(ContextCompat.getDrawable(WordCardActivity.this,R.drawable.ic_round_star_pressed_28));
+                    else starItem.setIcon(ContextCompat.getDrawable(WordCardActivity.this,R.drawable.ic_round_star_28));
+                }
             }
+        });
+
+        ivPrev.setOnClickListener(view -> {
+            pager.setCurrentItem(--position, true);
+        });
+        ivNext.setOnClickListener(view -> {
+            pager.setCurrentItem(++position, true);
         });
     }
 

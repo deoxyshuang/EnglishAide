@@ -23,10 +23,12 @@
         android:padding="@dimen/bottombarPadding"
         android:elevation="@dimen/lightElevation">
         <ImageView
+            android:id="@+id/ivPrev"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_arrow_left_20" />
+            android:src="@drawable/selector_iv_prev"
+            android:clickable="true"/>
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -55,10 +57,12 @@
                 android:gravity="center"/>
         </LinearLayout>
         <ImageView
+            android:id="@+id/ivNext"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_arrow_right_20"/>
+            android:src="@drawable/selector_iv_next"
+            android:clickable="true"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
