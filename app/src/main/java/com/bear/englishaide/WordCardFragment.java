@@ -21,6 +21,9 @@ public class WordCardFragment extends Fragment {
     private Gson gson = new Gson();
     private LinearLayout mainLayout;
     private String[] partList;
+    private int type;
+    private String wordJson;
+    private Word word;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -32,6 +35,11 @@ public class WordCardFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         partList = getResources().getStringArray(R.array.partList);
+        if(getArguments() != null){
+            type = getArguments().getInt("type",1);
+            wordJson = getArguments().getString("wordJson");
+            word = gson.fromJson(wordJson, Word.class);
+        }
     }
 
     @Override
@@ -39,9 +47,6 @@ public class WordCardFragment extends Fragment {
                              Bundle savedInstanceState) {
         View mainView = inflater.inflate(R.layout.fragment_word_card, container, false);
         mainLayout = mainView.findViewById(R.id.mainLayout);
-        int type = getArguments().getInt("type",1);
-        String wordJson = getArguments().getString("wordJson");
-        Word word = gson.fromJson(wordJson, Word.class);
         if(word!=null) createContent(type, word);
         return mainView;
     }
