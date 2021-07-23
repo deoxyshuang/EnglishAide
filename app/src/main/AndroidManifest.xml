@@ -18,6 +18,7 @@
         </activity>
         <activity android:name=".EditWordCardActivity"></activity>
         <activity android:name=".WordCardActivity"></activity>
+        <activity android:name=".QuizActivity"></activity>
     </application>
 
 </manifest>

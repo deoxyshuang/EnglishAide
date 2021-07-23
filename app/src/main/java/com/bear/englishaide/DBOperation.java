@@ -46,13 +46,15 @@ class DBOperation {
             sqlWhere = " where type=? ";
             param = new String[]{String.valueOf(vocabType.getKey())};
         }
-        switch (sortType){
-            case NEW_TO_OLD:
-                sqlOrder = " order by createTime desc ";
-                break;
-            case OLD_TO_NEW:
-                sqlOrder = " order by createTime";
-                break;
+        if (sortType!=null) {
+            switch (sortType){
+                case NEW_TO_OLD:
+                    sqlOrder = " order by createTime desc ";
+                    break;
+                case OLD_TO_NEW:
+                    sqlOrder = " order by createTime";
+                    break;
+            }
         }
 
         try {
@@ -69,21 +71,23 @@ class DBOperation {
                         wordMap.put("hasMark",cursor.getInt(3)); //有無星號標記 0=無 1=有
                         wordList.add(wordMap);
                     }
-                    switch (sortType){
-                        case A_TO_Z:
-                            wordList = (ArrayList<HashMap>) wordList.stream().sorted((map1, map2)->{
-                                Word w1 = (Word) map1.get("word");
-                                Word w2 = (Word) map2.get("word");
-                                return w1.word.compareTo(w2.word);
-                            }).collect(Collectors.toList());
-                            break;
-                        case Z_TO_A:
-                            wordList = (ArrayList<HashMap>) wordList.stream().sorted((map1, map2)->{
-                                Word w1 = (Word) map1.get("word");
-                                Word w2 = (Word) map2.get("word");
-                                return w2.word.compareTo(w1.word);
-                            }).collect(Collectors.toList());
-                            break;
+                    if (sortType!=null){
+                        switch (sortType){
+                            case A_TO_Z:
+                                wordList = (ArrayList<HashMap>) wordList.stream().sorted((map1, map2)->{
+                                    Word w1 = (Word) map1.get("word");
+                                    Word w2 = (Word) map2.get("word");
+                                    return w1.word.compareTo(w2.word);
+                                }).collect(Collectors.toList());
+                                break;
+                            case Z_TO_A:
+                                wordList = (ArrayList<HashMap>) wordList.stream().sorted((map1, map2)->{
+                                    Word w1 = (Word) map1.get("word");
+                                    Word w2 = (Word) map2.get("word");
+                                    return w2.word.compareTo(w1.word);
+                                }).collect(Collectors.toList());
+                                break;
+                        }
                     }
                 }
             }

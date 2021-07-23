@@ -78,4 +78,10 @@
         <item>2</item>
         <item>1</item>
     </integer-array>
+    <string-array name="quizNumAry">
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+    </string-array>
 </resources>
