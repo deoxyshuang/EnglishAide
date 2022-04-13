@@ -25,7 +25,6 @@ public class QuizFragment extends Fragment implements DBOperation.IQueryListener
     private Spinner spnQuizNum,spnType;
     private Button btnStart;
     private DBOperation dbo;
-    private QuizViewModel quizViewModel;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -38,7 +37,6 @@ public class QuizFragment extends Fragment implements DBOperation.IQueryListener
         super.onCreate(savedInstanceState);
         dbo = new DBOperation(context);
         dbo.setQueryListener(this);
-        quizViewModel = new ViewModelProvider(requireActivity()).get(QuizViewModel.class);
     }
 
     @Override
@@ -61,7 +59,6 @@ public class QuizFragment extends Fragment implements DBOperation.IQueryListener
         spnType.setAdapter(adapter2);
 
         btnStart.setOnClickListener(view -> {
-            Log.d("quiz", "btnStart.setOnClickListener");
             dbo.dataQuery(VocabType.getType(spnType.getSelectedItemPosition()), null);
         });
 
@@ -71,13 +68,14 @@ public class QuizFragment extends Fragment implements DBOperation.IQueryListener
 
     @Override
     public void onQueryComplete(ArrayList wordList) {
-        Log.d("quiz", "onQueryComplete: wordList="+wordList.size());
-        if (wordList.size()>0) { //todo 待增加細節防呆
+        String[] quizNumAry = getResources().getStringArray(R.array.quizNumAry);
+        if (wordList.size() >= Integer.valueOf(quizNumAry[spnQuizNum.getSelectedItemPosition()])) {
             Intent intent = new Intent(context, QuizActivity.class);
-            String[] quizNumAry = getResources().getStringArray(R.array.quizNumAry);
-            quizViewModel.getVocabType().setValue(spnType.getSelectedItemPosition());
-            quizViewModel.getQuizNum().setValue(quizNumAry[spnQuizNum.getSelectedItemPosition()]);
+            intent.putExtra("vocabType",spnType.getSelectedItemPosition());
+            intent.putExtra("quizNum",Integer.valueOf(quizNumAry[spnQuizNum.getSelectedItemPosition()]));
             startActivity(intent);
+        } else {
+            //todo 待增加細節防呆
         }
     }
 }

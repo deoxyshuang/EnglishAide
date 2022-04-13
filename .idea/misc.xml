@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/APPDEV/java/EnglishAide/app/src/main/res/drawable/bg_button.xml" value="0.20729166666666668" />
+        <entry key="..\:/APPDEV/java/EnglishAide/app/src/main/res/drawable/cursor_edt.xml" value="0.20729166666666668" />
+        <entry key="..\:/APPDEV/java/EnglishAide/app/src/main/res/layout/activity_quiz.xml" value="0.33" />
+        <entry key="..\:/APPDEV/java/EnglishAide/app/src/main/res/layout/cursor_edt.xml" value="0.1" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
