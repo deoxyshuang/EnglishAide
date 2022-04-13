@@ -5,8 +5,14 @@
       <map>
         <entry key="..\:/APPDEV/java/EnglishAide/app/src/main/res/drawable/bg_button.xml" value="0.20729166666666668" />
         <entry key="..\:/APPDEV/java/EnglishAide/app/src/main/res/drawable/cursor_edt.xml" value="0.20729166666666668" />
+        <entry key="..\:/APPDEV/java/EnglishAide/app/src/main/res/layout/activity_edit_word_card.xml" value="0.5" />
+        <entry key="..\:/APPDEV/java/EnglishAide/app/src/main/res/layout/activity_main.xml" value="0.1359375" />
         <entry key="..\:/APPDEV/java/EnglishAide/app/src/main/res/layout/activity_quiz.xml" value="0.33" />
+        <entry key="..\:/APPDEV/java/EnglishAide/app/src/main/res/layout/activity_word_card.xml" value="0.11614583333333334" />
         <entry key="..\:/APPDEV/java/EnglishAide/app/src/main/res/layout/cursor_edt.xml" value="0.1" />
+        <entry key="..\:/APPDEV/java/EnglishAide/app/src/main/res/layout/fragment_word_card.xml" value="0.11614583333333334" />
+        <entry key="..\:/APPDEV/java/EnglishAide/app/src/main/res/layout/item_wordcard.xml" value="0.12604166666666666" />
+        <entry key="..\:/APPDEV/java/EnglishAide/app/src/main/res/menu/bottom_nav_menu.xml" value="0.1359375" />
       </map>
     </option>
   </component>

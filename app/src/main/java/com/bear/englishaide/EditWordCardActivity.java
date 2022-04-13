@@ -129,7 +129,16 @@ public class EditWordCardActivity extends AppCompatActivity implements View.OnCl
             meanList = word.meanList;
 
             Integer fami = Arrays.stream(famiKeyList).filter(key -> key == word.fami).boxed().toArray( Integer[]::new )[0];
-            spnFami.setSelection(((fami>-1)?fami:2));
+            switch (fami){
+                case 3:
+                    spnFami.setSelection(0);
+                    break;
+                case 2:
+                    spnFami.setSelection(1);
+                    break;
+                default:
+                    spnFami.setSelection(2);
+            }
             edtWord.setText(word.word);
             if(type>-1){
                 spnType.setSelection(type-1);
